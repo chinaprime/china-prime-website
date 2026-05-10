@@ -250,49 +250,83 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#f8f5ef] px-6 py-20 text-[#1f2933] lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div className="group overflow-hidden rounded-[28px] border border-amber-900/10 bg-white p-3 shadow-[0_18px_45px_rgba(0,0,0,0.10)] transition duration-300 hover:-translate-y-1 hover:border-amber-500/50">
-            <div className="min-h-[520px] rounded-[22px] bg-[radial-gradient(circle_at_top,rgba(201,164,92,0.32),transparent_34%),linear-gradient(135deg,#071a33,#334155_48%,#c9a45c)]" />
+      <section className="relative overflow-hidden bg-[#f8f5ef] px-6 py-20 text-[#1f2933] lg:px-8 lg:py-24">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(201,164,92,0.18),transparent_28%),radial-gradient(circle_at_88%_78%,rgba(7,26,51,0.08),transparent_34%),linear-gradient(135deg,#fbf7ef_0%,#f8f5ef_44%,#efe6d8_100%)]" />
+        <div className="absolute left-0 top-0 h-48 w-48 rounded-full bg-[#c9a45c]/10 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-[#071a33]/10 blur-3xl" />
+
+        <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.44fr_0.56fr] lg:items-center xl:gap-16">
+          <div className="order-1 lg:order-none">
+            <div className="group relative overflow-hidden rounded-[34px] border border-[#d8c39a]/45 bg-[#fffaf1]/80 p-3 shadow-[0_24px_70px_rgba(7,26,51,0.14)] backdrop-blur transition duration-500 hover:-translate-y-1 hover:shadow-[0_30px_90px_rgba(7,26,51,0.18)]">
+              <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-[#c9a45c]/70 to-transparent" />
+              <div className="relative min-h-[460px] overflow-hidden rounded-[26px] bg-[radial-gradient(circle_at_top,rgba(201,164,92,0.24),transparent_34%),linear-gradient(135deg,#efe6d8,#f8f5ef_42%,#071a33)] sm:min-h-[540px] lg:min-h-[560px]">
+                <Image
+                  src="/images/founder-china-prime.jpg"
+                  alt="K.GOT Personal China Travel Designer"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 44vw"
+                  className="object-cover object-center transition duration-700 group-hover:scale-[1.035]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#071a33]/18 via-transparent to-transparent" />
+              </div>
+            </div>
           </div>
 
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-700">
-              Meet Your China Travel Designer
+          <div className="order-2 rounded-[34px] border border-white/65 bg-white/45 p-6 shadow-[0_20px_70px_rgba(7,26,51,0.08)] backdrop-blur md:p-8 lg:p-10">
+            <p className="text-xs font-extrabold uppercase tracking-[0.28em] text-[#c9a45c] md:text-sm">
+              YOUR PERSONAL CHINA TRAVEL DESIGNER
             </p>
 
-            <h2 className="mt-4 max-w-3xl text-4xl font-bold leading-tight text-[#071a33] md:text-5xl">
-              ดูแลโดยทีมที่เข้าใจจีน
+            <h2 className="mt-5 max-w-4xl text-3xl font-extrabold leading-[1.22] tracking-[-0.035em] text-[#071a33] md:text-5xl md:leading-[1.16]">
+              ออกแบบทริปจีนส่วนตัวโดย K.GOT
               <br />
-              และเข้าใจลูกค้าคนไทย
+              สำหรับลูกค้าคนไทยที่ต้องการเดินทางแบบมั่นใจ
             </h2>
 
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-600">
-              China Prime ช่วยออกแบบทริปจีนแบบส่วนตัวสำหรับลูกค้าคนไทย
-              โดยเน้นความสะดวก ความปลอดภัย และจังหวะการเดินทางที่เหมาะกับแต่ละครอบครัว
-              ตั้งแต่การเลือกเมือง วางเส้นทาง จัดรถ ไกด์ โรงแรม
-              ไปจนถึงการประสานงานระหว่างทริป
-            </p>
+            <div className="mt-7 max-w-3xl space-y-5 text-base leading-8 tracking-[-0.01em] text-slate-600 md:text-lg md:leading-9">
+              <p>
+                China Prime ดูแลการวางแผนทริปจีนแบบเฉพาะบุคคล โดย K.GOT
+                ที่เข้าใจทั้งความต้องการของลูกค้าคนไทย ภาษา วัฒนธรรม
+                และรายละเอียดการเดินทางในจีน ตั้งแต่การเลือกเมือง วางเส้นทาง
+                จัดรถ โรงแรม ไปจนถึงรายละเอียดสำคัญก่อนออกเดินทาง
+              </p>
+              <p>
+                ทุกทริปถูกออกแบบให้เหมาะกับจำนวนวัน งบประมาณ ไลฟ์สไตล์
+                และเป้าหมายของลูกค้า เพื่อให้การเดินทางในจีนเป็นเรื่องง่าย
+                สะดวก และมีมาตรฐาน
+              </p>
+            </div>
 
             <div className="mt-8 grid gap-4">
               {[
-                "เข้าใจการเดินทางในจีนและความต้องการของลูกค้าคนไทย",
-                "วางแผนทริปแบบ Tailor-made ไม่ใช่แพ็กเกจสำเร็จรูป",
-                "ดูแลรายละเอียดก่อนเดินทางและระหว่างทริปอย่างเป็นระบบ",
+                "วางแผนเส้นทางตามสไตล์การเดินทางของลูกค้า",
+                "ดูแลรายละเอียดรถ โรงแรม ร้านอาหาร และสถานที่เที่ยว",
+                "ให้คำแนะนำก่อนเดินทาง เพื่อให้ทริปเป็นระบบและราบรื่น",
               ].map((item) => (
-                <div key={item} className="flex gap-3">
-                  <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-amber-600" />
-                  <p className="leading-7 text-slate-700">{item}</p>
+                <div
+                  key={item}
+                  className="flex gap-4 rounded-2xl border border-[#d8c39a]/30 bg-[#fffaf1]/55 px-4 py-3 shadow-[0_10px_26px_rgba(7,26,51,0.04)]"
+                >
+                  <span className="mt-2.5 h-2.5 w-2.5 shrink-0 rounded-full bg-[#c9a45c] shadow-[0_0_0_5px_rgba(201,164,92,0.14)]" />
+                  <p className="text-[15px] font-semibold leading-7 tracking-[-0.01em] text-slate-700 md:text-base">
+                    {item}
+                  </p>
                 </div>
               ))}
             </div>
 
-            <Link
-              href="/contact"
-              className="mt-9 inline-flex rounded-sm bg-gradient-to-r from-amber-300 to-amber-600 px-7 py-4 text-sm font-bold text-slate-950 shadow-lg shadow-amber-950/20 transition hover:from-amber-200 hover:to-amber-500"
-            >
-              ปรึกษาทริปกับทีม China Prime
-            </Link>
+            <div className="mt-8 inline-flex rounded-full border border-[#c9a45c]/35 bg-white/75 px-5 py-2 text-xs font-extrabold uppercase tracking-[0.2em] text-[#071a33] shadow-[0_12px_30px_rgba(7,26,51,0.06)] md:text-sm">
+              CHINA TRAVEL SPECIALIST
+            </div>
+
+            <div>
+              <Link
+                href="/contact"
+                className="mt-8 inline-flex rounded-full bg-[#c9a45c] px-8 py-4 text-sm font-extrabold tracking-[-0.01em] text-[#071a33] shadow-[0_16px_36px_rgba(201,164,92,0.28)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#b8944f] hover:shadow-[0_20px_48px_rgba(201,164,92,0.38)]"
+              >
+                เริ่มออกแบบทริปของคุณ
+              </Link>
+            </div>
           </div>
         </div>
       </section>
