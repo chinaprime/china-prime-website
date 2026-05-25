@@ -1,506 +1,755 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import DestinationSection from "./components/destination-section";
+import HomeSearchPanel from "./components/home-search-panel";
+import { joinTours } from "./join-tours/data";
+import {
+  getHomeDestinationTabs,
+  getHomeFeaturedDestinations,
+  getHomeFeaturedTours,
+} from "./join-tours/home-selectors";
+import { siteConfig } from "./site-config";
 
-const featuredPrograms = [
+export const metadata: Metadata = {
+  title: "China Prime | ทัวร์จีน ไพรเวททัวร์ จอยทัวร์ และบริการรถ ไกด์ ล่าม",
+  description:
+    "รวมทัวร์จีนยอดนิยม ทั้งจอยทัวร์ ไพรเวททัวร์ และบริการรถพร้อมคนขับ ไกด์ และล่าม สำหรับเที่ยวพักผ่อนและเดินทางธุรกิจในจีน",
+};
+
+const chinaImages = {
+  hero: "/images/great-wall-home.jpg",
+  cta: "https://commons.wikimedia.org/wiki/Special:FilePath/Guilin_Li_River.jpg",
+};
+
+const trustChips = [
+  "ผู้เชี่ยวชาญทัวร์จีน",
+  "ราคาชัดเจน เช็กจริง",
+  "ดูแลต่อเนื่อง 24 ชม.",
+];
+
+const heroBenefits = [
+  { title: "ทัวร์คุณภาพ", text: "คัดโปรแกรมและบริการที่พร้อมใช้งานจริง" },
+  { title: "ราคาคุ้มค่า", text: "ช่วยเลือกทริปให้เหมาะกับงบและสไตล์" },
+  { title: "ดูแลใส่ใจ", text: "มีทีมงานช่วยก่อนเดินทางและระหว่างทริป" },
+];
+
+const tourTypeCards = [
   {
-    eyebrow: "Shanghai Private Escape",
-    title: "เซี่ยงไฮ้ส่วนตัวสำหรับสายพรีเมียม",
-    duration: "4 วัน 3 คืน",
-    highlight: "เมืองทันสมัย · วิวริมแม่น้ำ · โรงแรมทำเลดี",
+    title: "ทัวร์จอยกรุ๊ป",
+    subtitle: "เดินทางง่าย มีวันออกชัดเจน คุมงบได้สบาย",
     description:
-      "เส้นทางที่ออกแบบให้สัมผัสเซี่ยงไฮ้อย่างมีระดับ ทั้งวิว The Bund ย่านช้อปปิ้ง ร้านอาหาร และการเดินทางด้วยรถส่วนตัว",
+      "เหมาะกับคนที่อยากได้โปรแกรมพร้อมเดินทาง มีหัวหน้าทัวร์ดูแล และเลือกทริปได้จากโปรแกรมขายจริงของระบบ",
+    bullets: ["มีวันเดินทางแน่นอน", "คุมงบง่าย", "เลือกจากโปรแกรมยอดนิยมได้ทันที"],
+    chips: ["ขายดี", "พร้อมขายจริง", "เหมาะกับมือใหม่"],
+    button: "ดูทัวร์จอยกรุ๊ป",
+    href: "/join-tours",
+    image: joinTours.find((tour) => tour.destination === "เซี่ยงไฮ้")?.image ?? chinaImages.cta,
+    iconColor: "text-[#0B4EA2]",
+    buttonClassName: "ui-button-primary",
   },
   {
-    eyebrow: "Beijing Heritage Private Tour",
-    title: "ปักกิ่งสายวัฒนธรรมสำหรับครอบครัว",
-    duration: "5 วัน 4 คืน",
-    highlight: "กำแพงเมืองจีน · พระราชวังต้องห้าม · ไกด์ดูแลส่วนตัว",
+    title: "ทัวร์ไพรเวท",
+    subtitle: "ยืดหยุ่นกว่า ออกแบบให้ตรงกับกลุ่มของคุณ",
     description:
-      "เหมาะกับลูกค้าที่ต้องการสัมผัสประวัติศาสตร์จีนอย่างลึกซึ้ง โดยจัดจังหวะทริปให้สบายและเหมาะกับทุกวัย",
-  },
-  {
-    eyebrow: "Hangzhou Premium Retreat",
-    title: "หางโจวพักผ่อนหรูใกล้ธรรมชาติ",
-    duration: "3 วัน 2 คืน",
-    highlight: "ทะเลสาบซีหู · เมืองเก่า · จังหวะทริปไม่เร่งรีบ",
-    description:
-      "เส้นทางพักผ่อนสำหรับลูกค้าที่ต้องการความสงบ วิวสวย โรงแรมดี และประสบการณ์จีนที่ละเมียดกว่าทริปทั่วไป",
-  },
-  {
-    eyebrow: "Xinjiang Grand Scenic Journey",
-    title: "ซินเจียงเส้นทางธรรมชาติระดับพิเศษ",
-    duration: "8 วัน 7 คืน",
-    highlight: "ภูเขา · ทะเลสาบ · ทุ่งหญ้า · Private Route",
-    description:
-      "ทริปธรรมชาติขนาดใหญ่สำหรับลูกค้าที่ต้องการประสบการณ์แตกต่าง พร้อมวางเส้นทางให้เหมาะกับฤดูกาลและสภาพการเดินทางจริง",
+      "เหมาะกับครอบครัว กลุ่มเพื่อน หรือทริปพิเศษที่ต้องการกำหนดเมือง โรงแรม และจังหวะเที่ยวได้เองมากขึ้น",
+    bullets: ["ปรับเส้นทางได้", "เลือกโรงแรมและรถได้", "เหมาะกับครอบครัวและกลุ่มส่วนตัว"],
+    chips: ["พรีเมียม", "ยืดหยุ่นสูง", "เริ่มต้นง่าย"],
+    button: "ดูทัวร์ส่วนตัว",
+    href: "/private-tours",
+    image: joinTours.find((tour) => tour.destination === "ปักกิ่ง")?.image ?? chinaImages.cta,
+    iconColor: "text-[#166534]",
+    buttonClassName: "ui-button-success",
   },
 ];
 
-const privateServices = [
+const trustBarItems = [
+  { title: "ประสบการณ์กว่า 10 ปี", text: "ดูแลทริปจีนสำหรับลูกค้าคนไทยอย่างต่อเนื่อง" },
+  { title: "มั่นใจการเดินทาง", text: "ช่วยเช็กโปรแกรม รอบเดินทาง และข้อมูลก่อนจอง" },
+  { title: "ทีมงานมืออาชีพ", text: "ประสานงานให้เข้าใจง่ายตั้งแต่เริ่มต้น" },
+  { title: "ราคาโปร่งใส", text: "ไม่มีค่าใช้จ่ายซ่อนเร้นและแจ้งรายละเอียดชัดเจน" },
+  { title: "บริการหลังการขาย", text: "มีทีมช่วยติดตามก่อนออกเดินทางและระหว่างทริป" },
+];
+
+const whyChooseUsItems = [
+  { title: "ผู้เชี่ยวชาญทัวร์จีน", text: "โฟกัสเส้นทางจีนโดยเฉพาะและคัดโปรแกรมจากประสบการณ์จริง" },
+  { title: "ทีมงานมืออาชีพ", text: "ช่วยสรุปตัวเลือกให้เข้าใจง่ายและเหมาะกับแผนเดินทางของคุณ" },
+  { title: "ไม่บังคับช้อปปิ้ง", text: "คัดเส้นทางที่เน้นประสบการณ์และความคุ้มค่าของทริปเป็นหลัก" },
+  { title: "ราคาคุ้มค่า", text: "เลือกโรงแรม อาหาร และบริการให้สมดุลกับงบประมาณที่วางไว้" },
+  { title: "ดูแลตลอด 24 ชม.", text: "มีทีมงานช่วยประสานก่อนเดินทาง ระหว่างทริป และหลังการขาย" },
+];
+
+const homeServiceItems = [
   {
-    title: "รถส่วนตัวและคนขับดูแลเส้นทาง",
-    text: "จัดรถส่วนตัวตามจำนวนผู้เดินทาง พร้อมวางเวลาให้เหมาะกับจังหวะของแต่ละวัน",
+    title: "ทัวร์จอยกรุ๊ป",
+    text: "โปรแกรมพร้อมขาย เลือกรอบเดินทางได้ง่าย",
+    href: "/join-tours",
+    tone: "blue" as const,
+    kind: "group" as const,
   },
   {
-    title: "ไกด์และทีมประสานงานไทย-จีน",
-    text: "ช่วยสื่อสาร จัดการรายละเอียดหน้างาน และดูแลความเรียบร้อยตลอดทริป",
+    title: "ทัวร์ไพรเวท",
+    text: "ปรับเส้นทางให้เหมาะกับครอบครัวหรือกลุ่มส่วนตัว",
+    href: "/private-tours",
+    tone: "green" as const,
+    kind: "route" as const,
   },
   {
-    title: "ออกแบบโรงแรมและทำเลเข้าพัก",
-    text: "แนะนำโซนที่พักให้เหมาะกับเส้นทาง ความสะดวก และภาพลักษณ์ของทริป",
+    title: "ตั๋วเครื่องบิน",
+    text: "ช่วยประสานแผนการเดินทางให้ลงตัวกับทริป",
+    href: "/contact",
+    tone: "blue" as const,
+    kind: "flight" as const,
   },
   {
-    title: "ดูแลครอบครัว เด็ก และผู้สูงอายุ",
-    text: "จัดจังหวะการเดินทางให้ไม่เร่งรีบ ลดความเหนื่อย และเพิ่มความสบายระหว่างทริป",
+    title: "โรงแรมที่พัก",
+    text: "เลือกที่พักให้เหมาะกับทำเลและระดับความสบาย",
+    href: "/contact",
+    tone: "orange" as const,
+    kind: "hotel" as const,
   },
   {
-    title: "Concierge Support ก่อนและระหว่างเดินทาง",
-    text: "ทีมงานช่วยติดตามรายละเอียดสำคัญ ตั้งแต่ก่อนออกเดินทางจนจบทริป",
+    title: "วีซ่าจีน",
+    text: "ช่วยแนะนำเอกสารและขั้นตอนให้เตรียมตัวง่ายขึ้น",
+    href: "/contact",
+    tone: "green" as const,
+    kind: "document" as const,
+  },
+  {
+    title: "ประกันเดินทาง",
+    text: "เพิ่มความมั่นใจก่อนออกเดินทางทุกทริป",
+    href: "/contact",
+    tone: "blue" as const,
+    kind: "shield" as const,
   },
 ];
 
-const processSteps = [
+const bookingSteps = [
+  { number: "1", title: "เลือกทัวร์", text: "ดูโปรแกรมหรือบอกสไตล์ทริปที่ต้องการ" },
+  { number: "2", title: "ติดต่อเรา", text: "ส่งวันเดินทาง งบ และจำนวนผู้เดินทาง" },
+  { number: "3", title: "ยืนยันการจอง", text: "รับรายละเอียดและเช็กเงื่อนไขก่อนมัดจำ" },
+  { number: "4", title: "เตรียมตัวเดินทาง", text: "รับข้อมูลเอกสารและการนัดหมายก่อนบิน" },
+  { number: "5", title: "ออกเดินทาง", text: "เดินทางอย่างมั่นใจพร้อมทีมงานช่วยดูแล" },
+];
+
+const reviewCards = [
   {
-    step: "01",
-    title: "ปรึกษาความต้องการ",
-    text: "แจ้งเมืองที่อยากไป จำนวนผู้เดินทาง ช่วงเวลา งบประมาณ และสไตล์ทริปที่ต้องการ",
+    name: "คุณวันพร",
+    route: "ปักกิ่ง 5 วัน 4 คืน",
+    quote: "ทีมงานช่วยเลือกทริปให้เหมาะกับผู้สูงอายุในบ้านมากขึ้น ทำให้เที่ยวสบายและมั่นใจก่อนจองค่ะ",
   },
   {
-    step: "02",
-    title: "ออกแบบเส้นทางเฉพาะคุณ",
-    text: "ทีมงานจัดแผนการเดินทาง โรงแรม รถ ไกด์ และกิจกรรมให้เหมาะกับกลุ่มของคุณ",
+    name: "คุณกิตติพงษ์",
+    route: "จางเจียเจี้ย 6 วัน 5 คืน",
+    quote: "โปรแกรมคุ้มค่า ไกด์ดูแลดี และมีทีมงานช่วยตอบคำถามก่อนเดินทางเร็วมาก ทำให้ตัดสินใจง่ายขึ้นครับ",
   },
   {
-    step: "03",
-    title: "ปรับรายละเอียดก่อนยืนยัน",
-    text: "สามารถปรับเส้นทาง โรงแรม หรือกิจกรรมได้จนกว่าจะเหมาะกับความต้องการ",
-  },
-  {
-    step: "04",
-    title: "เดินทางพร้อมทีมดูแล",
-    text: "ระหว่างทริปมีทีมงานช่วยประสานงาน เพื่อให้การเดินทางราบรื่นและสบายใจ",
+    name: "คุณสุภาภรณ์",
+    route: "เซี่ยงไฮ้-หางโจว 4 วัน 3 คืน",
+    quote: "ชอบที่ข้อมูลชัด ราคาเข้าใจง่าย และมีตัวเลือกให้เปรียบเทียบก่อนจอง ทำให้รู้สึกมืออาชีพมากค่ะ",
   },
 ];
 
-const reviews = [
-  {
-    quote:
-      "เดินทางกับครอบครัวมีเด็กและผู้สูงอายุ ทีมงานจัดแผนให้ไม่เหนื่อยเกินไป รถสะดวก ไกด์ดูแลดีมาก ทุกอย่างเป็นระบบและสบายใจค่ะ",
-    name: "คุณณัฐธิดา",
-    trip: "Shanghai Family Trip",
-  },
-  {
-    quote:
-      "ชอบตรงที่ปรับแผนได้ตามความต้องการ ไม่ใช่ทัวร์ที่ต้องตามคนอื่นตลอด ทีมงานตอบไวและช่วยจัดรายละเอียดให้ครบ",
-    name: "คุณพงศกร",
-    trip: "Beijing Private Journey",
-  },
-  {
-    quote:
-      "ทริปเฉิงตูประทับใจมาก เด็ก ๆ ชอบแพนด้า ผู้ใหญ่ก็ไม่เหนื่อย เพราะจัดเวลาเดินทางดี มีคนดูแลตลอด",
-    name: "คุณศิริพร",
-    trip: "Chengdu Family Trip",
-  },
+const faqItems = [
+  "ต้องเตรียมเอกสารอะไรบ้างในการเดินทาง?",
+  "ทัวร์รวมอะไรบ้าง และไม่รวมอะไรบ้าง?",
+  "สามารถยกเลิกการจองได้หรือไม่?",
+  "เด็กสามารถเดินทางได้อายุเท่าไหร่?",
+  "หากเจ็บป่วยระหว่างทริป มีบริการช่วยเหลือหรือไม่?",
+  "การชำระเงิน มีวิธีไหนบ้าง?",
 ];
 
-const searchFields = [
-  "เมืองหรือเส้นทางที่สนใจ",
-  "สไตล์การเดินทาง",
-  "ช่วงเวลาเดินทาง",
-  "จำนวนผู้ร่วมเดินทาง",
-];
+const popularHomeTours = getHomeFeaturedTours(joinTours, 5);
+const featuredDestinations = getHomeFeaturedDestinations(joinTours, 8);
+const destinationTabs = getHomeDestinationTabs(featuredDestinations);
+const heroDestinationOptions = Array.from(new Set(joinTours.map((tour) => tour.destination))).sort();
+const heroMonthOptions = Array.from(new Set(joinTours.flatMap((tour) => tour.travelMonths))).sort();
+const topSellingTours = popularHomeTours.slice(0, 3);
 
-export default function Home() {
+function CheckIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
-    <main className="min-h-screen bg-[#071a33] text-white">
-      <section className="relative overflow-hidden bg-[#071a33]">
-        <Image
-          src="/images/hero-china-prime.jpg"
-          alt="China Prime private luxury China travel"
-          fill
-          priority
-          className="object-cover"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,26,51,0.98),rgba(7,26,51,0.82)_46%,rgba(7,26,51,0.28)),linear-gradient(180deg,rgba(7,26,51,0.12),rgba(7,26,51,0.96))]" />
-        <div className="absolute right-0 top-0 h-full w-1/2 bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.18),transparent_40%)]" />
-        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#071a33] to-transparent" />
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2.4">
+      <path d="m5 12.5 4 4L19 7.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
-        <div className="relative mx-auto max-w-7xl px-6 pb-16 pt-20 lg:px-8 lg:pb-20 lg:pt-24">
-          <div className="max-w-4xl border-l border-amber-300/60 pl-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-amber-300">
-              Luxury China Private Tour
-            </p>
-            <h1 className="mt-7 max-w-4xl text-4xl font-bold leading-[1.12] tracking-tight text-white md:text-6xl">
-              ทริปจีนระดับพรีเมียม
-              <br />
-              ที่ออกแบบเฉพาะคุณ
-            </h1>
-            <p className="mt-8 max-w-2xl text-lg leading-8 text-slate-200 md:text-xl">
-              Private Tour สำหรับลูกค้าคนไทย พร้อมรถส่วนตัว ไกด์ภาษาไทย/จีน
-              และทีมดูแลครบตั้งแต่การวางแผนจนจบทริป
-              ทุกเส้นทางถูกออกแบบให้เหมาะกับจังหวะการเดินทางของคุณ
-            </p>
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Link
-                href="/contact"
-                className="rounded-sm bg-gradient-to-r from-amber-300 to-amber-600 px-7 py-3 text-sm font-bold text-slate-950 shadow-xl hover:from-amber-200 hover:to-amber-500"
-              >
-                ปรึกษาทริปส่วนตัว
-              </Link>
-              <Link
-                href="/sample-itineraries"
-                className="rounded-sm border border-white/30 px-7 py-3 text-sm font-bold text-white hover:bg-white/10"
-              >
-                ดูตัวอย่างทริประดับพรีเมียม
-              </Link>
-            </div>
-            <p className="mt-6 max-w-2xl text-sm leading-6 text-slate-300">
-              ดูแลทริปจีนแบบส่วนตัวสำหรับครอบครัวและกรุ๊ประดับพรีเมียม
-              ด้วยทีมประสานงานไทย-จีนและการออกแบบเส้นทางแบบ Tailor-made
-            </p>
-          </div>
+function StarRow() {
+  return (
+    <div className="flex items-center gap-1 text-[#FBBF24]">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <svg key={index} viewBox="0 0 24 24" className="h-4 w-4 fill-current">
+          <path d="m12 3.8 2.5 5.08 5.6.82-4.05 3.95.96 5.58L12 16.6l-5 2.63.96-5.58L3.9 9.7l5.6-.82L12 3.8Z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
 
-          <div className="mt-12 rounded-2xl border border-white/10 bg-[#071a33]/90 p-4 shadow-2xl backdrop-blur md:p-5">
-            <div className="grid gap-3 md:grid-cols-[repeat(4,1fr)_auto]">
-              {searchFields.map((field) => (
-                <div key={field} className="rounded-xl border border-white/10 bg-white/5 px-4 py-4">
-                  <p className="text-xs font-semibold text-amber-300">{field}</p>
-                  <p className="mt-2 text-sm text-slate-300">ระบุ{field}</p>
-                </div>
-              ))}
-              <Link
-                href="/contact"
-                className="flex items-center justify-center rounded-xl bg-gradient-to-r from-amber-300 to-amber-600 px-6 py-4 text-sm font-bold text-slate-950 hover:from-amber-200 hover:to-amber-500"
-              >
-                ออกแบบแผนทริป
-              </Link>
-            </div>
-          </div>
+function IconBadge({ children }: { children: React.ReactNode }) {
+  return <span className="ui-icon-circle h-12 w-12">{children}</span>;
+}
+
+function SectionHeader({
+  title,
+  description,
+  eyebrow,
+  align = "left",
+}: {
+  title: string;
+  description?: string;
+  eyebrow?: string;
+  align?: "left" | "center";
+}) {
+  return (
+    <div className={align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
+      {eyebrow ? (
+        <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#8f7348]">{eyebrow}</p>
+      ) : null}
+      <h2 className={`ui-section-title mt-3 text-[#0F172A] ${align === "center" ? "text-center" : ""}`}>{title}</h2>
+      {description ? (
+        <p className={`ui-body mt-3 text-[#607086] ${align === "center" ? "ui-copy-max mx-auto text-center" : "ui-copy-max"}`}>
+          {description}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function WhyChooseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5.5 w-5.5" fill="none" stroke="currentColor" strokeWidth="1.9">
+      <path d="M12 3l7 4v5c0 4.2-2.8 7-7 9-4.2-2-7-4.8-7-9V7l7-4Z" />
+      <path d="m9.5 12 1.8 1.8L15 10" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ServiceIcon({
+  kind,
+  tone,
+}: {
+  kind: "group" | "route" | "flight" | "hotel" | "document" | "shield";
+  tone: "blue" | "green" | "orange";
+}) {
+  const toneClassName =
+    tone === "green"
+      ? "bg-[#ECFDF3] text-[#15803D]"
+      : tone === "orange"
+        ? "bg-[#FFF7ED] text-[#C96A10]"
+        : "bg-[#EEF5FF] text-[#0B4EA2]";
+
+  return (
+    <span className={`inline-flex h-12 w-12 items-center justify-center rounded-[18px] ${toneClassName}`}>
+      <svg viewBox="0 0 24 24" className="h-5.5 w-5.5" fill="none" stroke="currentColor" strokeWidth="1.9">
+        {kind === "group" ? (
+          <>
+            <circle cx="8.5" cy="9" r="2.5" />
+            <circle cx="15.5" cy="8.5" r="2.25" />
+            <path d="M4.5 18c0-2.45 2.08-4.45 4.64-4.45S13.8 15.55 13.8 18" />
+            <path d="M14.25 17.35c.4-1.65 1.92-2.85 3.84-2.85 1.08 0 2.06.38 2.8 1.02" />
+          </>
+        ) : kind === "route" ? (
+          <>
+            <path d="M5 18c2.1-3.7 4.2-5.55 6.3-5.55 2.05 0 3.38 1.58 5.08 1.58 1.16 0 2.36-.72 3.62-2.15" />
+            <path d="M6.25 7.75a1.75 1.75 0 1 0 0 3.5 1.75 1.75 0 0 0 0-3.5Z" />
+            <path d="M18 13.75a1.75 1.75 0 1 0 0 3.5 1.75 1.75 0 0 0 0-3.5Z" />
+          </>
+        ) : kind === "flight" ? (
+          <>
+            <path d="M20 6 4.5 12l5.4 1.5L12 19l1.9-4.2L20 6Z" />
+            <path d="M9.9 13.5 20 6" strokeLinecap="round" />
+          </>
+        ) : kind === "hotel" ? (
+          <>
+            <path d="M5 17V8.8c0-.64.3-1.24.82-1.62l4.68-3.4a2 2 0 0 1 2.32 0l4.68 3.4c.52.38.82.98.82 1.62V17" />
+            <path d="M4 17h16" />
+            <path d="M9 17v-4h6v4" />
+          </>
+        ) : kind === "document" ? (
+          <>
+            <path d="M8 4.5h6l4 4v10.75A1.75 1.75 0 0 1 16.25 21h-8.5A1.75 1.75 0 0 1 6 19.25v-13A1.75 1.75 0 0 1 7.75 4.5Z" />
+            <path d="M14 4.5v4h4" />
+            <path d="M9 13h6M9 16.5h4.5" strokeLinecap="round" />
+          </>
+        ) : (
+          <>
+            <path d="M12 3l7 4v5c0 4.2-2.8 7-7 9-4.2-2-7-4.8-7-9V7l7-4Z" />
+            <path d="m9.5 12 1.8 1.8L15 10" strokeLinecap="round" strokeLinejoin="round" />
+          </>
+        )}
+      </svg>
+    </span>
+  );
+}
+
+function FAQItem({ question }: { question: string }) {
+  return (
+    <details className="ui-card group px-5 py-4">
+      <summary className="ui-button flex cursor-pointer list-none items-center justify-between gap-3 text-[#334155] [&::-webkit-details-marker]:hidden">
+        <span>{question}</span>
+        <span className="text-[#64748B] transition group-open:rotate-180">⌄</span>
+      </summary>
+      <p className="ui-body mt-3 text-[#64748B]">
+        ทีมงาน CHINA PRIME พร้อมอธิบายรายละเอียดเพิ่มเติมให้ครบถ้วนก่อนจอง
+        ทั้งเรื่องโปรแกรมทัวร์ เงื่อนไขการเดินทาง และการดูแลระหว่างทริป
+      </p>
+    </details>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <main className="min-h-screen bg-[#f4efe7] text-[#0F172A]">
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <Image
+            src={chinaImages.hero}
+            alt="กำแพงเมืองจีนและเส้นขอบฟ้าของมหานครจีน"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(92deg,rgba(5,43,79,0.95)_0%,rgba(7,59,102,0.84)_40%,rgba(7,59,102,0.26)_78%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(243,230,204,0.22),transparent_28%)]" />
         </div>
-      </section>
 
-      <section className="bg-[#071a33] px-6 py-16 text-white lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-10 max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-300">
-              Why China Prime
-            </p>
-            <h2 className="mt-4 text-3xl font-bold md:text-4xl">
-              การดูแลที่ออกแบบมาเพื่อทริปจีนแบบ Private / Luxury Tour
-            </h2>
-            <p className="mt-4 leading-7 text-slate-300">
-              เราให้ความสำคัญกับรายละเอียด ความยืดหยุ่น และจังหวะการเดินทางที่เหมาะกับลูกค้าแต่ละกลุ่ม
-              เพื่อให้ทุกทริปแตกต่างจากการเดินทางแบบทั่วไป
-            </p>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                title: "ทริปออกแบบเฉพาะคุณ",
-                subtitle: "Tailor-made Experience",
-                text: "วางแผนเส้นทาง กิจกรรม และจังหวะการเดินทางให้ตรงกับไลฟ์สไตล์ของคุณโดยเฉพาะ",
-                iconPath: "M12 3l7 4v6c0 5-3.5 8-7 8s-7-3-7-8V7l7-4z",
-              },
-              {
-                title: "ทีมดูแลส่วนตัวตลอดทริป",
-                subtitle: "Private Concierge Service",
-                text: "มีทีมงานและไกด์ภาษาไทยดูแลตั้งแต่ก่อนเดินทาง ระหว่างทริป จนจบการเดินทาง",
-                iconPath: "M5 11a7 7 0 0114 0v3a3 3 0 01-3 3h-1m-6 0H8a3 3 0 01-3-3v-3z",
-              },
-              {
-                title: "ยืดหยุ่น ปรับแผนได้จริง",
-                subtitle: "Flexible Private Journey",
-                text: "ปรับเปลี่ยนแผนตามสถานการณ์จริง เพื่อให้ทุกช่วงเวลาสะดวกและราบรื่นที่สุด",
-                iconPath: "M4 7h11l-3-3m3 3l-3 3M20 17H9l3 3m-3-3l3-3",
-              },
-              {
-                title: "เหมาะสำหรับครอบครัวและลูกค้าพรีเมียม",
-                subtitle: "Premium Family Travel",
-                text: "วางแผนแบบไม่เร่งรีบ รองรับทั้งเด็ก ผู้สูงอายุ และกลุ่มเดินทางส่วนตัว",
-                iconPath: "M16 11c1.657 0 3-1.567 3-3.5S17.657 4 16 4s-3 1.567-3 3.5S14.343 11 16 11zM8 12c1.657 0 3-1.343 3-3S9.657 6 8 6 5 7.343 5 9s1.343 3 3 3zM3 20c0-3 2.5-5 5-5s5 2 5 5M11 20c0-3.5 2.5-6 5-6s5 2.5 5 6",
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="group rounded-[22px] border border-white/10 bg-white/[0.06] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.18)] transition duration-300 hover:-translate-y-1 hover:border-amber-300/60 hover:bg-white/[0.09]"
-              >
-                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-300/30 bg-amber-300/10 text-amber-300 transition duration-300 group-hover:border-amber-300 group-hover:text-amber-200">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-7 w-7"
-                    aria-hidden="true"
-                  >
-                    <path d={item.iconPath} />
-                  </svg>
-                </div>
-
-                <h3 className="text-xl font-bold leading-snug text-white">{item.title}</h3>
-                <p className="mt-2 text-sm font-semibold text-amber-200">{item.subtitle}</p>
-                <p className="mt-4 text-sm leading-7 text-slate-300">{item.text}</p>
+        <div className="relative mx-auto max-w-[1200px] px-4 pb-32 pt-12 text-white sm:px-6 lg:px-8 lg:pb-40 lg:pt-16">
+          <div className="grid gap-10 lg:grid-cols-[1.05fr_0.62fr] lg:items-end">
+            <div className="max-w-4xl">
+              <div className="inline-flex rounded-full border border-white/16 bg-white/10 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#f3ddbf] backdrop-blur-sm">
+                Premium China Travel Platform
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              <h1 className="ui-display mt-4 max-w-[10ch] sm:max-w-none">
+                ทัวร์จีนครบในที่เดียว
+                <br />
+                ทั้งไพรเวท จอยทัวร์
+                <br />
+                และบริการเสริม
+              </h1>
+              <p className="ui-copy-max ui-copy-tight mt-5 text-[15px] font-medium leading-[1.7] text-white/90 md:text-[1.1rem]">
+                เลือกได้ทั้งทริปส่วนตัว จอยทัวร์ และบริการรถพร้อมคนขับ ไกด์ หรือล่าม
+                สำหรับเที่ยวพักผ่อนและเดินทางธุรกิจในจีน
+              </p>
 
-      <section className="relative overflow-hidden bg-[#f8f5ef] px-6 py-20 text-[#1f2933] lg:px-8 lg:py-24">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(201,164,92,0.18),transparent_28%),radial-gradient(circle_at_88%_78%,rgba(7,26,51,0.08),transparent_34%),linear-gradient(135deg,#fbf7ef_0%,#f8f5ef_44%,#efe6d8_100%)]" />
-        <div className="absolute left-0 top-0 h-48 w-48 rounded-full bg-[#c9a45c]/10 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-[#071a33]/10 blur-3xl" />
-
-        <div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.44fr_0.56fr] lg:items-center xl:gap-16">
-          <div className="order-1 lg:order-none">
-            <div className="group relative overflow-hidden rounded-[34px] border border-[#d8c39a]/45 bg-[#fffaf1]/80 p-3 shadow-[0_24px_70px_rgba(7,26,51,0.14)] backdrop-blur transition duration-500 hover:-translate-y-1 hover:shadow-[0_30px_90px_rgba(7,26,51,0.18)]">
-              <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-[#c9a45c]/70 to-transparent" />
-              <div className="relative min-h-[460px] overflow-hidden rounded-[26px] bg-[radial-gradient(circle_at_top,rgba(201,164,92,0.24),transparent_34%),linear-gradient(135deg,#efe6d8,#f8f5ef_42%,#071a33)] sm:min-h-[540px] lg:min-h-[560px]">
-                <Image
-                  src="/images/founder-china-prime.jpg"
-                  alt="K.GOT Personal China Travel Designer"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 44vw"
-                  className="object-cover object-center transition duration-700 group-hover:scale-[1.035]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#071a33]/18 via-transparent to-transparent" />
+              <div className="mt-7 flex flex-wrap gap-x-5 gap-y-3 text-[14px] font-medium text-white/96">
+                {trustChips.map((chip) => (
+                  <div key={chip} className="flex items-center gap-2">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/35 bg-white/12">
+                      <CheckIcon className="h-3.5 w-3.5" />
+                    </span>
+                    <span>{chip}</span>
+                  </div>
+                ))}
               </div>
-            </div>
-          </div>
 
-          <div className="order-2 rounded-[34px] border border-white/65 bg-white/45 p-6 shadow-[0_20px_70px_rgba(7,26,51,0.08)] backdrop-blur md:p-8 lg:p-10">
-            <p className="text-xs font-extrabold uppercase tracking-[0.28em] text-[#c9a45c] md:text-sm">
-              YOUR PERSONAL CHINA TRAVEL DESIGNER
-            </p>
-
-            <h2 className="mt-5 max-w-4xl text-3xl font-extrabold leading-[1.22] tracking-[-0.035em] text-[#071a33] md:text-5xl md:leading-[1.16]">
-              ออกแบบทริปจีนส่วนตัวโดย K.GOT
-              <br />
-              สำหรับลูกค้าคนไทยที่ต้องการเดินทางแบบมั่นใจ
-            </h2>
-
-            <div className="mt-7 max-w-3xl space-y-5 text-base leading-8 tracking-[-0.01em] text-slate-600 md:text-lg md:leading-9">
-              <p>
-                China Prime ดูแลการวางแผนทริปจีนแบบเฉพาะบุคคล โดย K.GOT
-                ที่เข้าใจทั้งความต้องการของลูกค้าคนไทย ภาษา วัฒนธรรม
-                และรายละเอียดการเดินทางในจีน ตั้งแต่การเลือกเมือง วางเส้นทาง
-                จัดรถ โรงแรม ไปจนถึงรายละเอียดสำคัญก่อนออกเดินทาง
-              </p>
-              <p>
-                ทุกทริปถูกออกแบบให้เหมาะกับจำนวนวัน งบประมาณ ไลฟ์สไตล์
-                และเป้าหมายของลูกค้า เพื่อให้การเดินทางในจีนเป็นเรื่องง่าย
-                สะดวก และมีมาตรฐาน
-              </p>
-            </div>
-
-            <div className="mt-8 grid gap-4">
-              {[
-                "วางแผนเส้นทางตามสไตล์การเดินทางของลูกค้า",
-                "ดูแลรายละเอียดรถ โรงแรม ร้านอาหาร และสถานที่เที่ยว",
-                "ให้คำแนะนำก่อนเดินทาง เพื่อให้ทริปเป็นระบบและราบรื่น",
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="flex gap-4 rounded-2xl border border-[#d8c39a]/30 bg-[#fffaf1]/55 px-4 py-3 shadow-[0_10px_26px_rgba(7,26,51,0.04)]"
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Link
+                  href="/contact"
+                  className="ui-button inline-flex min-h-12 w-full items-center justify-center rounded-full bg-white px-6 py-3.5 text-[#103b63] shadow-[0_18px_40px_rgba(8,26,47,0.16)] transition hover:-translate-y-0.5 hover:bg-[#FDFBF8] sm:w-auto"
                 >
-                  <span className="mt-2.5 h-2.5 w-2.5 shrink-0 rounded-full bg-[#c9a45c] shadow-[0_0_0_5px_rgba(201,164,92,0.14)]" />
-                  <p className="text-[15px] font-semibold leading-7 tracking-[-0.01em] text-slate-700 md:text-base">
-                    {item}
-                  </p>
-                </div>
-              ))}
+                  ขอคำแนะนำทริป
+                </Link>
+                <Link
+                  href="/join-tours"
+                  className="ui-button ui-button-glass inline-flex min-h-12 w-full items-center justify-center px-6 py-3.5 transition hover:-translate-y-0.5 hover:bg-white/18 sm:w-auto"
+                >
+                  ดูทัวร์ทั้งหมด
+                </Link>
+              </div>
             </div>
 
-            <div className="mt-8 inline-flex rounded-full border border-[#c9a45c]/35 bg-white/75 px-5 py-2 text-xs font-extrabold uppercase tracking-[0.2em] text-[#071a33] shadow-[0_12px_30px_rgba(7,26,51,0.06)] md:text-sm">
-              CHINA TRAVEL SPECIALIST
-            </div>
+            <div className="ui-radius-panel border border-white/14 bg-white/10 p-5 shadow-[0_28px_60px_rgba(5,43,79,0.2)] backdrop-blur-lg">
+              <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#f3ddbf]">Top Picks This Season</p>
+              <div className="mt-4 space-y-3">
+                {topSellingTours.map((tour, index) => (
+                  <div
+                    key={tour.slug}
+                    className="grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-[20px] border border-white/12 bg-white/8 px-3.5 py-3"
+                  >
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/92 text-sm font-extrabold text-[#073B66]">
+                      0{index + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-white">{tour.title}</p>
+                      <p className="mt-1 truncate text-xs text-white/72">{tour.duration} • {tour.destination}</p>
+                    </div>
+                    <span className="rounded-full bg-[#F3E6CC] px-2.5 py-1 text-[10px] font-semibold text-[#7b5a25]">
+                      {tour.tag}
+                    </span>
+                  </div>
+                ))}
+              </div>
 
-            <div>
-              <Link
-                href="/contact"
-                className="mt-8 inline-flex rounded-full bg-[#c9a45c] px-8 py-4 text-sm font-extrabold tracking-[-0.01em] text-[#071a33] shadow-[0_16px_36px_rgba(201,164,92,0.28)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#b8944f] hover:shadow-[0_20px_48px_rgba(201,164,92,0.38)]"
-              >
-                เริ่มออกแบบทริปของคุณ
-              </Link>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+                {heroBenefits.map((item) => (
+                  <article
+                    key={item.title}
+                    className="rounded-[20px] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.18)_0%,rgba(255,255,255,0.1)_100%)] px-4 py-4"
+                  >
+                    <p className="text-sm font-bold text-white">{item.title}</p>
+                    <p className="mt-1 text-[12px] leading-5 text-white/76">{item.text}</p>
+                  </article>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-[#071a33] py-20">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+      <section className="relative z-10 mx-auto -mt-16 max-w-[1200px] px-4 sm:px-6 lg:-mt-18 lg:px-8">
+        <div className="rounded-[30px] border border-white/82 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(247,248,245,0.98)_100%)] p-4 shadow-[0_30px_72px_rgba(8,26,47,0.16)] backdrop-blur-xl sm:p-5 lg:p-6">
+          <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-300">
-                Curated Private Journeys
-              </p>
-              <h2 className="mt-4 max-w-3xl text-4xl font-bold">
-                เส้นทางจีนที่คัดสรรสำหรับลูกค้าระดับพรีเมียม
+              <p className="text-[12px] font-semibold uppercase tracking-[0.2em] text-[#8f7348]">Search Tours</p>
+              <h2 className="mt-1 text-[1.35rem] font-bold tracking-[-0.04em] text-[#10263d] md:text-[1.6rem]">
+                ค้นหาทัวร์หรือบริการที่เหมาะกับคุณ
               </h2>
             </div>
-            <Link
-              href="/sample-itineraries"
-              className="rounded-sm border border-amber-300/60 px-5 py-3 text-sm font-semibold text-amber-200 hover:bg-amber-300 hover:text-slate-950"
-            >
-              ดูโปรแกรมทั้งหมด →
-            </Link>
+            <p className="text-sm text-[#64748B]">เริ่มจากปลายทาง ประเภททัวร์ และช่วงเดินทางที่สนใจ</p>
           </div>
+          <HomeSearchPanel destinations={heroDestinationOptions} months={heroMonthOptions} />
+        </div>
+      </section>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {featuredPrograms.map((program, index) => (
-              <div
-                key={program.title}
-                className="group overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl transition hover:-translate-y-1 hover:border-amber-300/50"
-              >
-                <div className="h-48 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.42),transparent_30%),linear-gradient(135deg,#0f172a,#334155_45%,#b45309)] p-5">
-                  <p className="text-sm font-semibold text-amber-200">0{index + 1}</p>
+      <section className="ui-section pt-10 lg:pt-12">
+        <div className="grid gap-5 xl:grid-cols-2">
+          {tourTypeCards.map((card) => (
+            <article
+              key={card.title}
+              className="ui-card grid h-full overflow-hidden border border-[#E2EAF4] md:grid-cols-[0.9fr_1.1fr]"
+            >
+              <div className="relative min-h-[260px]">
+                <Image
+                  src={card.image}
+                  alt={card.title}
+                  fill
+                  sizes="(max-width: 1280px) 100vw, 36vw"
+                  className="object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,30,66,0.04)_0%,rgba(9,30,66,0.28)_100%)]" />
+              </div>
+              <div className="flex h-full flex-col p-5 md:p-6">
+                <p className={`text-[12px] font-semibold uppercase tracking-[0.2em] ${card.iconColor}`}>Tour Type</p>
+                <h2 className="mt-2 text-[2rem] font-bold leading-[1.08] tracking-[-0.05em] text-[#10263d]">
+                  {card.title}
+                </h2>
+                <p className="mt-2 text-[16px] font-semibold leading-[1.5] text-[#334155]">{card.subtitle}</p>
+                <p className="mt-3 text-[14px] leading-[1.75] text-[#64748B]">{card.description}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {card.chips.map((chip) => (
+                    <span
+                      key={chip}
+                      className="rounded-full border border-[#E4ECF6] bg-[#F8FBFF] px-3 py-1.5 text-[12px] font-medium text-[#4E637D]"
+                    >
+                      {chip}
+                    </span>
+                  ))}
                 </div>
-                <div className="p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200">
-                    {program.eyebrow}
-                  </p>
-                  <h3 className="mt-3 text-xl font-bold leading-snug text-white">{program.title}</h3>
-                  <p className="mt-3 text-sm text-amber-200">{program.duration}</p>
-                  <p className="mt-2 text-sm font-semibold text-white">{program.highlight}</p>
-                  <p className="mt-4 text-sm leading-6 text-slate-300">{program.description}</p>
-                  <Link href="/contact" className="mt-5 inline-flex text-sm font-semibold text-amber-300">
-                    ขอออกแบบเส้นทางนี้ →
+                <div className="mt-5 space-y-2.5">
+                  {card.bullets.map((bullet) => (
+                    <div key={bullet} className="flex items-start gap-3 text-[14px] font-medium text-[#334155]">
+                      <span className={`${card.iconColor} mt-0.5`}>
+                        <CheckIcon />
+                      </span>
+                      <span>{bullet}</span>
+                    </div>
+                  ))}
+                </div>
+                <Link
+                  href={card.href}
+                  className={`ui-button ${card.buttonClassName} mt-auto inline-flex min-h-11 items-center justify-center rounded-2xl px-5 py-3 text-white transition hover:-translate-y-0.5`}
+                >
+                  {card.button}
+                </Link>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="ui-section pt-6">
+        <div className="grid gap-4 rounded-[28px] border border-[#DFE8F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F7FBFF_100%)] px-5 py-5 shadow-[0_18px_40px_rgba(15,23,42,0.05)] md:grid-cols-2 xl:grid-cols-5">
+          {trustBarItems.map((item) => (
+            <article key={item.title} className="flex items-start gap-3">
+              <IconBadge>
+                <WhyChooseIcon />
+              </IconBadge>
+              <div>
+                <h3 className="ui-label font-semibold text-[#0F172A]">{item.title}</h3>
+                <p className="mt-1 text-[12px] leading-[1.6] text-[#64748B]">{item.text}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="popular-tours" className="ui-section ui-section-space pt-10">
+        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <SectionHeader
+            eyebrow="Popular Tours"
+            title="ทัวร์ยอดนิยม"
+            description="รวมโปรแกรมขายดีที่พร้อมใช้งานจริงจากระบบเดิม ทั้งเส้นทางเมืองใหญ่ ธรรมชาติ และทริปสำหรับครอบครัว"
+          />
+          <Link href="/join-tours" className="ui-button text-[#0B4EA2]">
+            ดูทัวร์ทั้งหมด →
+          </Link>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          {popularHomeTours.map((tour) => (
+            <article key={tour.slug} className="ui-card flex h-full flex-col overflow-hidden border border-[#E2EAF4]">
+              <div className="relative h-52">
+                <Image
+                  src={tour.image}
+                  alt={tour.title}
+                  fill
+                  sizes="(max-width: 1280px) 50vw, 20vw"
+                  className={`object-cover ${tour.imageClassName}`}
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,30,66,0.02)_0%,rgba(9,30,66,0.32)_100%)]" />
+                <div className="absolute left-3 right-3 top-3 flex items-start justify-between gap-2">
+                  <span className={`rounded-full px-3 py-1 text-[11px] font-semibold text-white shadow-[0_10px_24px_rgba(8,26,47,0.12)] ${tour.badgeClassName}`}>
+                    {tour.tag}
+                  </span>
+                  <span className="rounded-full bg-white/92 px-3 py-1 text-[11px] font-semibold text-[#0B4EA2] shadow-[0_10px_24px_rgba(8,26,47,0.12)] backdrop-blur-sm">
+                    {tour.duration}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-1 flex-col p-5">
+                <div className="flex flex-wrap gap-2">
+                  {tour.salesBadges.slice(0, 2).map((badge) => (
+                    <span key={badge} className="rounded-full bg-[#F3E6CC] px-2.5 py-1 text-[10px] font-semibold text-[#7B5A25]">
+                      {badge}
+                    </span>
+                  ))}
+                </div>
+                <h3 className="mt-3 text-[1.15rem] font-bold leading-[1.35] tracking-[-0.03em] text-[#10263d]">{tour.title}</h3>
+                <p className="mt-2 text-[14px] leading-[1.7] text-[#64748B]">{tour.subtitle}</p>
+
+                <div className="mt-4 space-y-2 rounded-[18px] bg-[#F7FAFE] px-3.5 py-3.5 text-[12px] font-medium text-[#5B6E86]">
+                  {tour.meta.map((item) => (
+                    <div key={item} className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#0B4EA2]" />
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-auto pt-5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7B90AC]">ราคาเริ่มต้น</p>
+                  <div className="mt-2 flex items-end justify-between gap-3">
+                    <div>
+                      <p className="ui-price text-[#0B4EA2]">{tour.price}</p>
+                      <p className="text-[12px] text-[#7B90AC]">/ ท่าน</p>
+                    </div>
+                    <span className="rounded-full bg-[#EEF5FF] px-3 py-1.5 text-[12px] font-semibold text-[#0B4EA2]">
+                      จองแล้ว {tour.bookedCount}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-2">
+                  <Link
+                    href={tour.detailHref}
+                    className="ui-button ui-button-primary inline-flex min-h-11 w-full items-center justify-center px-4 py-3 transition hover:-translate-y-0.5"
+                  >
+                    ดูรายละเอียด
+                  </Link>
+                  <Link
+                    href={tour.inquiryHref}
+                    className="ui-button inline-flex min-h-10 w-full items-center justify-center rounded-2xl border border-[#DCE7F4] bg-white px-4 py-2.5 text-[#0B4EA2] transition hover:bg-[#F6FAFF]"
+                  >
+                    {tour.inquiryLabel}
                   </Link>
                 </div>
               </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <DestinationSection tabs={destinationTabs} destinations={featuredDestinations} />
+
+      <section className="ui-section ui-section-space">
+        <div className="mb-6">
+          <SectionHeader
+            eyebrow="Why China Prime"
+            title="ทำไมต้องเลือกเดินทางกับเรา"
+            description="เราออกแบบทริปจีนให้ดูโปร่ง น่าเชื่อถือ และตัดสินใจง่ายขึ้น ด้วยข้อมูลที่ชัดเจนและทีมงานที่ช่วยดูแลจริง"
+            align="center"
+          />
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          {whyChooseUsItems.map((item) => (
+            <article key={item.title} className="ui-card ui-card-pad text-center">
+              <div className="ui-icon-circle mx-auto mb-4 h-14 w-14">
+                <WhyChooseIcon />
+              </div>
+              <h3 className="ui-card-title text-[#0F172A]">{item.title}</h3>
+              <p className="ui-body mt-2 text-[#64748B]">{item.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="ui-section ui-section-space">
+        <div className="rounded-[32px] border border-[#DDE8F5] bg-[linear-gradient(180deg,#FFFFFF_0%,#F7FBFF_100%)] px-5 py-8 shadow-[0_22px_54px_rgba(15,23,42,0.05)] sm:px-7 lg:px-8">
+          <div className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <SectionHeader
+              eyebrow="Services"
+              title="บริการของเรา"
+              description="นอกจากทัวร์จอยกรุ๊ปและทัวร์ส่วนตัว เรายังช่วยประสานบริการเสริมที่ทำให้การเดินทางไปจีนสะดวกขึ้นทั้งก่อนและระหว่างทริป"
+            />
+            <Link href="/contact" className="ui-button text-[#0B4EA2]">
+              สอบถามบริการทั้งหมด →
+            </Link>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {homeServiceItems.map((item) => (
+              <Link
+                key={item.title}
+                href={item.href}
+                className="group rounded-[24px] border border-[#E2EAF4] bg-white p-5 shadow-[0_16px_34px_rgba(15,23,42,0.06)] transition hover:-translate-y-1 hover:shadow-[0_22px_40px_rgba(15,23,42,0.1)]"
+              >
+                <ServiceIcon kind={item.kind} tone={item.tone} />
+                <h3 className="mt-4 text-[1.15rem] font-bold tracking-[-0.03em] text-[#0F172A]">{item.title}</h3>
+                <p className="mt-2 text-[14px] leading-[1.7] text-[#64748B]">{item.text}</p>
+                <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#0B4EA2] transition group-hover:gap-3">
+                  ดูรายละเอียด
+                  <span aria-hidden="true">→</span>
+                </span>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-slate-50 py-20 text-slate-900">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-600">
-            Luxury Experience
-          </p>
-          <h2 className="mt-4 max-w-3xl text-4xl font-bold">
-            ประสบการณ์เดินทางที่เหนือกว่าทัวร์ทั่วไป
-          </h2>
-          <p className="mt-5 max-w-3xl leading-8 text-slate-600">
-            เราให้ความสำคัญกับทุกรายละเอียด ตั้งแต่รถรับส่ง ไกด์ส่วนตัว โรงแรม ร้านอาหาร
-            ไปจนถึงจังหวะการเดินทาง เพื่อให้ทริปของคุณสะดวกและพิเศษที่สุด
-          </p>
+      <section className="ui-section ui-section-space">
+        <SectionHeader
+          eyebrow="Booking Process"
+          title="ขั้นตอนการจองง่ายๆ"
+          description="ออกแบบ flow ให้เข้าใจง่ายสำหรับลูกค้าที่เพิ่งเริ่มวางแผนทริปจีนและต้องการคุยกับทีมงานแบบตรงประเด็น"
+          align="center"
+        />
 
-          <div className="mt-10 grid gap-5 md:grid-cols-5">
-            {privateServices.map((service) => (
-              <div key={service.title} className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-                <div className="mb-5 h-32 rounded-xl bg-gradient-to-br from-[#071a33] via-slate-500 to-amber-300" />
-                <h3 className="text-sm font-bold uppercase tracking-wide text-[#071a33]">{service.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{service.text}</p>
+        <div className="mt-6 rounded-[28px] border border-[#DDE8F5] bg-[linear-gradient(180deg,#FFFFFF_0%,#F7FBFF_100%)] px-5 py-5 shadow-[0_16px_34px_rgba(15,23,42,0.05)]">
+          <div className="grid gap-4 lg:grid-cols-5">
+            {bookingSteps.map((step, index) => (
+              <div key={step.number} className="relative flex gap-4 rounded-[22px] bg-white px-4 py-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F3E6CC] text-sm font-extrabold text-[#7B5A25]">
+                  {step.number}
+                </span>
+                <div>
+                  <h3 className="ui-card-title text-[#0F172A]">{step.title}</h3>
+                  <p className="ui-body mt-1 text-[#64748B]">{step.text}</p>
+                </div>
+                {index < bookingSteps.length - 1 ? (
+                  <span className="absolute -right-2 top-1/2 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[#0B4EA2] text-white lg:flex">
+                    →
+                  </span>
+                ) : null}
               </div>
             ))}
           </div>
-
-          <div className="mt-10 text-center">
-            <Link
-              href="/private-tours"
-              className="inline-flex rounded-sm bg-gradient-to-r from-amber-300 to-amber-600 px-7 py-3 text-sm font-bold text-slate-950 hover:from-amber-200 hover:to-amber-500"
-            >
-              ดูบริการทั้งหมด
-            </Link>
-          </div>
         </div>
       </section>
 
-      <section className="bg-white py-20 text-slate-900">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-600">
-              How It Works
-            </p>
-            <h2 className="mt-4 text-4xl font-bold">เริ่มต้นออกแบบทริปส่วนตัวได้ง่าย ๆ</h2>
-            <p className="mt-5 leading-8 text-slate-600">
-              เพียงบอกความต้องการของคุณ ทีมงานจะช่วยออกแบบเส้นทางและดูแลรายละเอียดให้ครบทุกขั้นตอน
-            </p>
-          </div>
-
-          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {processSteps.map((item) => (
-              <div
-                key={item.step}
-                className="group relative rounded-[22px] border border-slate-200 bg-slate-50 p-6 shadow-[0_12px_30px_rgba(0,0,0,0.06)] transition duration-300 hover:-translate-y-1 hover:border-amber-500/60 hover:bg-white"
-              >
-                <p className="text-4xl font-bold text-amber-500/80">{item.step}</p>
-                <h3 className="mt-5 text-xl font-bold text-[#071a33]">{item.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-600">{item.text}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10">
-            <Link
-              href="/contact"
-              className="inline-flex rounded-sm bg-gradient-to-r from-amber-300 to-amber-600 px-7 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-amber-950/20 transition hover:from-amber-200 hover:to-amber-500"
-            >
-              เริ่มปรึกษาทริปส่วนตัว
-            </Link>
-          </div>
+      <section className="ui-section ui-section-space">
+        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <SectionHeader
+            eyebrow="Customer Reviews"
+            title="รีวิวจากลูกค้า"
+            description="คำบอกเล่าจากลูกค้าที่เคยใช้บริการจริง ช่วยให้เห็นภาพการดูแลและจังหวะการเดินทางก่อนตัดสินใจ"
+          />
+          <Link href="/reviews" className="ui-button text-[#0B4EA2]">
+            ดูรีวิวทั้งหมด →
+          </Link>
         </div>
-      </section>
 
-      <section className="relative overflow-hidden bg-[#071a33] py-20 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(251,191,36,0.18),transparent_34%)]" />
-        <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-300">
-              Client Reviews
-            </p>
-            <h2 className="mt-4 text-4xl font-bold">เสียงจากลูกค้าที่เดินทางกับเรา</h2>
-            <p className="mt-5 leading-8 text-slate-300">
-              ประสบการณ์จากลูกค้าคนไทยที่เลือกเดินทางจีนแบบส่วนตัว พร้อมทีมงานดูแลตลอดทริป
-            </p>
-          </div>
-
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {reviews.map((review) => (
-              <div
-                key={review.name}
-                className="rounded-[22px] border border-white/10 bg-white/[0.06] p-6 shadow-[0_18px_60px_rgba(0,0,0,0.18)]"
-              >
-                <p className="text-5xl font-bold leading-none text-amber-300">“</p>
-                <p className="mt-4 text-sm leading-7 text-slate-200">{review.quote}</p>
-                <div className="mt-6 border-t border-white/10 pt-5">
-                  <p className="font-bold text-white">{review.name}</p>
-                  <p className="mt-1 text-sm text-amber-200">{review.trip}</p>
+        <div className="grid gap-4 md:grid-cols-3">
+          {reviewCards.map((review) => (
+            <article key={review.name} className="ui-card ui-card-pad h-full">
+              <div className="flex items-center gap-3">
+                <div className="relative h-12 w-12 overflow-hidden rounded-full border border-[#E2E8F0]">
+                  <Image
+                    src="/images/founder-china-prime.jpg"
+                    alt={review.name}
+                    fill
+                    sizes="48px"
+                    className="object-cover object-[center_18%]"
+                  />
+                </div>
+                <div>
+                  <h3 className="ui-label font-semibold text-[#0F172A]">{review.name}</h3>
+                  <p className="text-[12px] font-medium leading-[1.4] text-[#64748B]">{review.route}</p>
                 </div>
               </div>
-            ))}
-          </div>
+              <div className="mt-4">
+                <StarRow />
+              </div>
+              <p className="ui-body mt-4 text-[#475569]">“{review.quote}”</p>
+            </article>
+          ))}
+        </div>
+      </section>
 
-          <div className="mt-16 rounded-[28px] border border-amber-300/20 bg-white/[0.06] p-8 text-center shadow-[0_18px_60px_rgba(0,0,0,0.24)] md:p-12">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-300">
-              Begin Your China Journey
-            </p>
-            <h2 className="mt-4 text-4xl font-bold">ให้เราช่วยออกแบบทริปจีนที่เหมาะกับคุณที่สุด</h2>
-            <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-slate-300">
-              บอกความต้องการของคุณ แล้วทีมงานจะช่วยแนะนำเส้นทาง เมืองที่เหมาะสม
-              และรูปแบบการเดินทางที่ตรงกับสไตล์ของคุณ
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Link
-                href="https://line.me/R/ti/p/@chinaprime"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-sm bg-green-500 px-8 py-4 text-sm font-bold text-white shadow-lg shadow-green-950/20 transition hover:bg-green-400"
-              >
-                ปรึกษาทริปทาง LINE
-              </Link>
-              <Link
-                href="/sample-itineraries"
-                className="rounded-sm border border-white/25 px-8 py-4 text-sm font-bold text-white transition hover:bg-white/10"
-              >
-                ดูตัวอย่างเส้นทาง
-              </Link>
+      <section className="ui-section pb-16">
+        <SectionHeader
+          eyebrow="FAQ"
+          title="คำถามที่พบบ่อย"
+          description="ถ้ายังไม่แน่ใจเรื่องการจอง เอกสาร หรือเงื่อนไขการเดินทาง สามารถเริ่มจากคำถามที่ลูกค้าถามบ่อยได้ที่นี่"
+          align="center"
+        />
+
+        <div className="mt-6 grid gap-3 md:grid-cols-2">
+          {faqItems.map((item) => (
+            <FAQItem key={item} question={item} />
+          ))}
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <Image
+            src={chinaImages.cta}
+            alt="ภูเขาและวิวธรรมชาติของจีน"
+            fill
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(92deg,rgba(5,43,79,0.94)_0%,rgba(7,59,102,0.82)_50%,rgba(22,163,74,0.68)_100%)]" />
+        </div>
+
+        <div className="relative mx-auto max-w-[1200px] px-4 py-12 text-white sm:px-6 lg:px-8 lg:py-14">
+          <div className="grid gap-5 lg:grid-cols-[1fr_auto_auto] lg:items-center">
+            <div>
+              <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#F3E6CC]">Ready To Plan</p>
+              <h2 className="ui-section-title mt-3 text-white">อยากเที่ยวจีนแบบไหน เราจัดให้ได้ตามใจคุณ</h2>
+              <p className="ui-body-lg ui-copy-max mt-3 text-white/88">
+                ปรึกษาฟรี ไม่มีค่าใช้จ่าย พร้อมช่วยเลือกเส้นทาง โปรแกรม และบริการเสริมที่เหมาะกับคุณจริง
+              </p>
             </div>
+
+            <Link
+              href={siteConfig.phoneHref}
+              className="ui-button ui-button-secondary inline-flex min-h-11 items-center justify-center px-6 py-3 transition hover:-translate-y-0.5 hover:bg-[#f8fbff]"
+            >
+              โทรหาเรา {siteConfig.phoneDisplay}
+            </Link>
+            <Link
+              href={siteConfig.lineUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ui-button ui-button-success inline-flex min-h-11 items-center justify-center px-6 py-3 transition hover:-translate-y-0.5 hover:bg-[#12823b]"
+            >
+              แชททาง LINE {siteConfig.lineId}
+            </Link>
           </div>
         </div>
       </section>

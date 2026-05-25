@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>China Prime — Real-time UI Editor</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* === EDITABLE DESIGN TOKENS === */
+    --bg: #f4efe7;
+    --deep-blue: #081a2f;
+    --primary-blue: #184f84;
+    --primary-blue-strong: #0f4c81;
+    --success: #1d8f63;
+    --gold: #c3a16c;
+    --card-bg: rgba(255,255,255,0.96);
+    --card-radius: 1.5rem;
+    --button-radius: 9999px;
+    --section-title-size: 2.125rem;
+    --display-size: 4rem;
+    --card-title-size: 1.1875rem;
+    --body-size: 0.9375rem;
+    --header-bg: rgba(250,247,242,0.88);
+    --nav-text: #334155;
+    --hero-overlay: rgba(8,26,47,0.92);
+    --shadow-card: 0 20px 45px rgba(12,25,43,0.08);
+    --font-family: "IBM Plex Sans Thai","Noto Sans Thai","Prompt","Sarabun",Arial,sans-serif;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f1117;
+    color: #e2e8f0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== TOOLBAR ===== */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #1a1f2e;
+    border-bottom: 1px solid #2d3748;
+    padding: 0 16px;
+    height: 48px;
+    flex-shrink: 0;
+    gap: 12px;
+  }
+  .toolbar-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e2e8f0;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toolbar-title .badge {
+    background: #0f4c81;
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    letter-spacing: 0.1em;
+  }
+  .toolbar-tabs {
+    display: flex;
+    gap: 4px;
+    background: #0f1117;
+    padding: 3px;
+    border-radius: 8px;
+  }
+  .toolbar-tab {
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: #718096;
+    transition: all 0.15s;
+  }
+  .toolbar-tab.active {
+    background: #2d3748;
+    color: #e2e8f0;
+  }
+  .toolbar-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .btn-reset {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid #4a5568;
+    background: transparent;
+    color: #a0aec0;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-reset:hover { background: #2d3748; color: #e2e8f0; }
+  .btn-copy {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 6px;
+    border: none;
+    background: #0f4c81;
+    color: white;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-copy:hover { background: #1a6bb5; }
+  .btn-apply {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 6px;
+    border: none;
+    background: #1d8f63;
+    color: white;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-apply:hover { background: #25b57e; }
+
+  /* ===== MAIN LAYOUT ===== */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    background: #1a1f2e;
+    border-right: 1px solid #2d3748;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-search {
+    padding: 10px 14px;
+    border-bottom: 1px solid #2d3748;
+    flex-shrink: 0;
+  }
+  .sidebar-search input {
+    width: 100%;
+    background: #0f1117;
+    border: 1px solid #2d3748;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    color: #e2e8f0;
+    outline: none;
+  }
+  .sidebar-search input::placeholder { color: #4a5568; }
+  .sidebar-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0 16px;
+  }
+  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+  .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+  .sidebar-scroll::-webkit-scrollbar-thumb { background: #2d3748; border-radius: 2px; }
+
+  .section-group {
+    margin-bottom: 4px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #4a5568;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+  }
+  .section-header:hover { color: #718096; }
+  .section-header .arrow { transition: transform 0.2s; font-size: 9px; }
+  .section-header.collapsed .arrow { transform: rotate(-90deg); }
+  .section-body { padding: 4px 14px 8px; }
+  .section-body.collapsed { display: none; }
+
+  /* ===== CONTROL ROW ===== */
+  .ctrl-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    gap: 8px;
+    border-bottom: 1px solid #1e2535;
+  }
+  .ctrl-row:last-child { border-bottom: none; }
+  .ctrl-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #a0aec0;
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ctrl-value {
+    font-size: 10px;
+    font-weight: 600;
+    color: #63b3ed;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    text-align: right;
+    min-width: 48px;
+  }
+
+  /* Color picker */
+  .ctrl-color {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .color-swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.12);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .color-swatch input[type="color"] {
+    position: absolute;
+    inset: -4px;
+    opacity: 0;
+    cursor: pointer;
+    width: calc(100% + 8px);
+    height: calc(100% + 8px);
+  }
+
+  /* Range slider */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100px;
+    height: 4px;
+    background: #2d3748;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: #63b3ed;
+    border-radius: 50%;
+    border: 2px solid #1a1f2e;
+    cursor: pointer;
+  }
+
+  /* Select */
+  .ctrl-select {
+    background: #0f1117;
+    border: 1px solid #2d3748;
+    border-radius: 4px;
+    padding: 3px 6px;
+    font-size: 11px;
+    color: #e2e8f0;
+    cursor: pointer;
+    outline: none;
+    max-width: 120px;
+  }
+
+  /* ===== PREVIEW ===== */
+  .preview-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #0f1117;
+  }
+  .preview-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 38px;
+    background: #1a1f2e;
+    border-bottom: 1px solid #2d3748;
+    flex-shrink: 0;
+    gap: 12px;
+  }
+  .preview-bar-url {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: #0f1117;
+    border: 1px solid #2d3748;
+    border-radius: 6px;
+    padding: 4px 10px;
+    gap: 6px;
+    font-size: 11px;
+    color: #718096;
+  }
+  .preview-bar-url span { color: #a0aec0; }
+  .preview-viewport-btns {
+    display: flex;
+    gap: 4px;
+  }
+  .vp-btn {
+    padding: 3px 8px;
+    font-size: 11px;
+    border-radius: 4px;
+    border: 1px solid #2d3748;
+    background: transparent;
+    color: #718096;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .vp-btn.active {
+    background: #2d3748;
+    color: #e2e8f0;
+    border-color: #4a5568;
+  }
+  .preview-canvas {
+    flex: 1;
+    overflow: auto;
+    padding: 16px;
+    background: #0f1117;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .preview-canvas::-webkit-scrollbar { width: 6px; height: 6px; }
+  .preview-canvas::-webkit-scrollbar-track { background: transparent; }
+  .preview-canvas::-webkit-scrollbar-thumb { background: #2d3748; border-radius: 3px; }
+
+  .site-frame {
+    background: var(--bg);
+    font-family: var(--font-family);
+    transition: width 0.3s ease;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 32px 80px rgba(0,0,0,0.5);
+    width: 100%;
+    max-width: 1280px;
+  }
+  .site-frame.tablet { max-width: 768px; }
+  .site-frame.mobile { max-width: 375px; }
+
+  /* ===== SITE PREVIEW STYLES ===== */
+  .preview-topbar {
+    background: var(--deep-blue);
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+  }
+  .preview-topbar .checks { display: flex; gap: 16px; align-items: center; }
+  .preview-topbar .check { display: flex; align-items: center; gap: 5px; }
+
+  .preview-header {
+    background: var(--header-bg);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(8,26,47,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 72px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .preview-logo-text {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    color: var(--primary-blue);
+    line-height: 1;
+    transition: color 0.3s;
+  }
+  .preview-logo-sub {
+    font-size: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    margin-top: 3px;
+  }
+  .preview-nav {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: var(--button-radius);
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--nav-text);
+    transition: all 0.3s;
+  }
+  .preview-nav a {
+    color: inherit;
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s;
+  }
+  .preview-nav a:hover { color: var(--primary-blue-strong); }
+  .preview-header-actions { display: flex; gap: 8px; align-items: center; }
+  .preview-btn-primary {
+    background: linear-gradient(135deg, #103b63 0%, var(--primary-blue-strong) 55%, #2f6995 100%);
+    color: white;
+    border: none;
+    border-radius: var(--button-radius);
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+    box-shadow: 0 12px 28px rgba(8,26,47,0.18);
+    white-space: nowrap;
+  }
+  .preview-btn-success {
+    background: linear-gradient(135deg, #16734c 0%, var(--success) 50%, #2ba177 100%);
+    color: white;
+    border: none;
+    border-radius: var(--button-radius);
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+    box-shadow: 0 12px 28px rgba(10,76,57,0.18);
+    white-space: nowrap;
+  }
+
+  .preview-hero {
+    position: relative;
+    background:
+      linear-gradient(90deg, var(--hero-overlay), rgba(16,59,99,0.6) 60%, rgba(16,59,99,0.2) 100%),
+      url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/20090107_great_wall_8212.jpg/1200px-20090107_great_wall_8212.jpg') center/cover;
+    padding: 48px 32px 100px;
+    color: white;
+    transition: background 0.3s;
+  }
+  .preview-hero-badge {
+    display: inline-flex;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.1);
+    border-radius: 9999px;
+    padding: 5px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #f3ddbf;
+    backdrop-filter: blur(8px);
+    margin-bottom: 12px;
+  }
+  .preview-hero h1 {
+    font-size: var(--display-size);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.03;
+    max-width: 14ch;
+    margin-bottom: 12px;
+    transition: font-size 0.3s;
+  }
+  .preview-hero-sub {
+    font-size: 15px;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.88);
+    max-width: 56ch;
+    margin-bottom: 24px;
+  }
+  .preview-hero-chips {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .preview-hero-chip { display: flex; align-items: center; gap: 7px; }
+  .preview-hero-chip-icon {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+  .preview-hero-btns { display: flex; gap: 12px; margin-bottom: 16px; }
+  .hero-btn-white {
+    background: white;
+    color: #103b63;
+    border: none;
+    border-radius: 9999px;
+    padding: 11px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 18px 40px rgba(8,26,47,0.16);
+    white-space: nowrap;
+  }
+  .hero-btn-glass {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.28);
+    color: white;
+    border-radius: 9999px;
+    padding: 11px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    white-space: nowrap;
+  }
+  .preview-hero-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .preview-hero-pill {
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.1);
+    border-radius: 9999px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.88);
+  }
+  .preview-hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    max-width: 680px;
+  }
+  .preview-hero-stat {
+    background: linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.08) 100%);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 14px 16px;
+    backdrop-filter: blur(10px);
+  }
+  .preview-hero-stat-val { font-size: 17px; font-weight: 700; letter-spacing: -0.03em; }
+  .preview-hero-stat-lbl { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 3px; line-height: 1.4; }
+
+  /* Cards section */
+  .preview-section {
+    padding: 32px 24px;
+    background: var(--bg);
+    transition: background 0.3s;
+  }
+  .preview-section-title {
+    font-size: var(--section-title-size);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: #0f172a;
+    text-align: center;
+    margin-bottom: 8px;
+    transition: font-size 0.3s;
+  }
+  .preview-section-sub {
+    font-size: 14px;
+    color: #64748b;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .preview-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .preview-card {
+    background: var(--card-bg);
+    border-radius: var(--card-radius);
+    border: 1px solid rgba(255,255,255,0.7);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    transition: border-radius 0.3s, box-shadow 0.3s;
+  }
+  .preview-card-img {
+    height: 140px;
+    background: linear-gradient(135deg, #0f4c81 0%, #1d8f63 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+  }
+  .preview-card-img img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
+  .preview-card-body { padding: 16px; }
+  .preview-card-tag {
+    display: inline-flex;
+    background: rgba(11,78,162,0.1);
+    color: #0b4ea2;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    margin-bottom: 8px;
+  }
+  .preview-card-title {
+    font-size: var(--card-title-size);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+    margin-bottom: 6px;
+    line-height: 1.3;
+    transition: font-size 0.3s;
+  }
+  .preview-card-desc {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.65;
+    margin-bottom: 12px;
+  }
+  .preview-card-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--primary-blue-strong);
+    transition: color 0.3s;
+  }
+  .preview-card-cta {
+    width: 100%;
+    margin-top: 12px;
+    background: linear-gradient(135deg, #103b63 0%, var(--primary-blue-strong) 55%, #2f6995 100%);
+    color: white;
+    border: none;
+    border-radius: var(--button-radius);
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s, border-radius 0.3s;
+  }
+
+  /* Trust bar */
+  .preview-trust {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(246,243,238,0.94) 100%);
+    border: 1px solid rgba(255,255,255,0.76);
+    border-radius: var(--card-radius);
+    padding: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 18px 38px rgba(12,25,43,0.06);
+    transition: border-radius 0.3s;
+  }
+  .preview-trust-item { display: flex; align-items: center; gap: 10px; }
+  .preview-trust-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(180deg, #f8fbff 0%, #f4ede2 100%);
+    border: 1px solid rgba(195,161,108,0.2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--primary-blue-strong);
+    font-size: 16px;
+    flex-shrink: 0;
+    transition: color 0.3s;
+  }
+  .preview-trust-title { font-size: 12px; font-weight: 700; color: #0f172a; }
+  .preview-trust-text { font-size: 11px; color: #64748b; margin-top: 1px; }
+
+  /* Reviews */
+  .preview-reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .preview-review-card {
+    background: var(--card-bg);
+    border-radius: var(--card-radius);
+    border: 1px solid rgba(255,255,255,0.7);
+    box-shadow: var(--shadow-card);
+    padding: 18px;
+    transition: border-radius 0.3s;
+  }
+  .preview-review-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .preview-review-avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--success) 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 15px; font-weight: 700;
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .preview-review-name { font-size: 14px; font-weight: 700; color: #0f172a; }
+  .preview-review-route { font-size: 11px; color: #64748b; }
+  .preview-review-stars { color: #fbbf24; font-size: 13px; margin-bottom: 8px; }
+  .preview-review-text { font-size: 13px; color: #475569; line-height: 1.65; }
+
+  /* Footer */
+  .preview-footer {
+    background: var(--deep-blue);
+    color: white;
+    padding: 40px 24px 20px;
+    transition: background 0.3s;
+  }
+  .preview-footer-grid { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 1fr; gap: 28px; margin-bottom: 28px; }
+  .preview-footer-logo { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.04em; margin-bottom: 8px; }
+  .preview-footer-sub { font-size: 9px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); transition: color 0.3s; }
+  .preview-footer-desc { font-size: 12px; line-height: 1.65; color: rgba(255,255,255,0.65); margin-top: 10px; max-width: 200px; }
+  .preview-footer-col-title { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: rgba(255,255,255,0.45); margin-bottom: 12px; }
+  .preview-footer-link { font-size: 12px; color: rgba(255,255,255,0.7); display: block; margin-bottom: 8px; text-decoration: none; }
+  .preview-footer-copyright { font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+
+  /* ===== CODE PANEL ===== */
+  .code-panel {
+    position: fixed;
+    bottom: 0;
+    left: 300px;
+    right: 0;
+    background: #1a1f2e;
+    border-top: 1px solid #2d3748;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    max-height: 240px;
+    overflow: hidden;
+    z-index: 100;
+  }
+  .code-panel.open { transform: translateY(0); }
+  .code-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    border-bottom: 1px solid #2d3748;
+    background: #151b28;
+  }
+  .code-panel-title { font-size: 11px; font-weight: 700; color: #a0aec0; letter-spacing: 0.05em; }
+  .code-panel-close { background: none; border: none; color: #4a5568; cursor: pointer; font-size: 16px; line-height: 1; }
+  .code-panel-body { padding: 12px 16px; overflow-y: auto; max-height: 180px; }
+  .code-panel-body::-webkit-scrollbar { width: 4px; }
+  .code-panel-body::-webkit-scrollbar-thumb { background: #2d3748; border-radius: 2px; }
+  pre {
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    color: #a0aec0;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .pre-comment { color: #4a5568; }
+  .pre-property { color: #68d391; }
+  .pre-value { color: #63b3ed; }
+  .pre-colon { color: #e2e8f0; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1d8f63;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.2s;
+    z-index: 9999;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* Changed indicator */
+  .ctrl-row.changed .ctrl-label { color: #68d391; }
+  .ctrl-row.changed .ctrl-value { color: #68d391; }
+
+  /* Highlight overlay */
+  .preview-section-highlight {
+    outline: 2px dashed rgba(99,179,237,0.5);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="toolbar-title">
+    <span>🇨🇳</span>
+    CHINA PRIME
+    <span class="badge">UI EDITOR</span>
+  </div>
+  <div class="toolbar-tabs">
+    <button class="toolbar-tab active" onclick="setTab('design')">🎨 ออกแบบ</button>
+    <button class="toolbar-tab" onclick="setTab('typography')">✏️ ตัวอักษร</button>
+    <button class="toolbar-tab" onclick="setTab('layout')">📐 Layout</button>
+    <button class="toolbar-tab" onclick="setTab('components')">🔲 Components</button>
+  </div>
+  <div class="toolbar-actions">
+    <button class="btn-reset" onclick="resetAll()">↺ รีเซ็ต</button>
+    <button class="btn-copy" onclick="showCode()">{ } ดูโค้ด CSS</button>
+    <button class="btn-apply" onclick="applyToFiles()">⚡ บันทึกไฟล์จริง</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-search">
+      <input type="text" id="searchInput" placeholder="🔍 ค้นหา control..." oninput="filterControls(this.value)" />
+    </div>
+    <div class="sidebar-scroll" id="sidebarContent">
+
+      <!-- TAB: DESIGN -->
+      <div class="tab-content" data-tab="design">
+
+        <!-- Colors -->
+        <div class="section-group">
+          <div class="section-header" onclick="toggleSection(this)">
+            <span>🎨 สีหลัก</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="ctrl-row" data-name="--bg">
+              <span class="ctrl-label">พื้นหลังเว็บ</span>
+              <div class="ctrl-color">
+                <div class="color-swatch" id="swatch-bg" style="background:#f4efe7">
+                  <input type="color" value="#f4efe7" oninput="setVar('--bg',this.value,'swatch-bg','val-bg')" />
+                </div>
+                <span class="ctrl-value" id="val-bg">#f4efe7</span>
+              </div>
+            </div>
+            <div class="ctrl-row" data-name="--primary-blue">
+              <span class="ctrl-label">Primary Blue</span>
+              <div class="ctrl-color">
+                <div class="color-swatch" id="swatch-primary-blue" style="background:#184f84">
+                  <input type="color" value="#184f84" oninput="setVar('--primary-blue',this.value,'swatch-primary-blue','val-primary-blue')" />
+                </div>
+                <span class="ctrl-value" id="val-primary-blue">#184f84</span>
+              </div>
+            </div>
+            <div class="ctrl-row" data-name="--primary-blue-strong">
+              <span class="ctrl-label">Blue (Strong)</span>
+              <div class="ctrl-color">
+                <div class="color-swatch" id="swatch-pbs" style="background:#0f4c81">
+                  <input type="color" value="#0f4c81" oninput="setVar('--primary-blue-strong',this.value,'swatch-pbs','val-pbs')" />
+                </div>
+                <span class="ctrl-value" id="val-pbs">#0f4c81</span>
+              </div>
+            </div>
+            <div class="ctrl-row" data-name="--deep-blue">
+              <span class="ctrl-label">Deep Blue (header/footer)</span>
+              <div class="ctrl-color">
+                <div class="color-swatch" id="swatch-deep" style="background:#081a2f">
+                  <input type="color" value="#081a2f" oninput="setVar('--deep-blue',this.value,'swatch-deep','val-deep')" />
+                </div>
+                <span class="ctrl-value" id="val-deep">#081a2f</span>
+              </div>
+            </div>
+            <div class="ctrl-row" data-name="--success">
+              <span class="ctrl-label">Success Green (LINE/CTA)</span>
+              <div class="ctrl-color">
+                <div class="color-swatch" id="swatch-success" style="background:#1d8f63">
+                  <input type="color" value="#1d8f63" oninput="setVar('--success',this.value,'swatch-success','val-success')" />
+                </div>
+                <span class="ctrl-value" id="val-success">#1d8f63</span>
+              </div>
+            </div>
+            <div class="ctrl-row" data-name="--gold">
+              <span class="ctrl-label">Gold / Accent</span>
+              <div class="ctrl-color">
+                <div class="color-swatch" id="swatch-gold" style="background:#c3a16c">
+                  <input type="color" value="#c3a16c" oninput="setVar('--gold',this.value,'swatch-gold','val-gold')" />
+                </div>
+                <span class="ctrl-value" id="val-gold">#c3a16c</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Header -->
+        <div class="section-group">
+          <div class="section-header" onclick="toggleSection(this)">
+            <span>📌 Header</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="ctrl-row" data-name="--header-bg">
+              <span class="ctrl-label">Header Background</span>
+              <div class="ctrl-color">
+                <div class="color-swatch" id="swatch-hbg" style="background:#faf7f2">
+                  <input type="color" value="#faf7f2" oninput="setHeaderBg(this.value)" />
+                </div>
+                <span class="ctrl-value" id="val-hbg">#faf7f2</span>
+              </div>
+            </div>
+            <div class="ctrl-row" data-name="--nav-text">
+              <span class="ctrl-label">Nav Text Color</span>
+              <div class="ctrl-color">
+                <div class="color-swatch" id="swatch-nav" style="background:#334155">
+                  <input type="color" value="#334155" oninput="setVar('--nav-text',this.value,'swatch-nav','val-nav')" />
+                </div>
+                <span class="ctrl-value" id="val-nav">#334155</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero -->
+        <div class="section-group">
+          <div class="section-header" onclick="toggleSection(this)">
+            <span>🌟 Hero Section</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="ctrl-row" data-name="hero-overlay">
+              <span class="ctrl-label">Overlay Opacity</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="range" min="0" max="100" value="92"
+                  oninput="setHeroOverlay(this.value/100); document.getElementById('val-hero-opacity').textContent=this.value+'%'" />
+                <span class="ctrl-value" id="val-hero-opacity">92%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card -->
+        <div class="section-group">
+          <div class="section-header" onclick="toggleSection(this)">
+            <span>🃏 การ์ด</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="ctrl-row" data-name="--card-bg">
+              <span class="ctrl-label">Card Background</span>
+              <div class="ctrl-color">
+                <div class="color-swatch" id="swatch-card-bg" style="background:#fff">
+                  <input type="color" value="#ffffff" oninput="setCardBg(this.value,'swatch-card-bg','val-card-bg')" />
+                </div>
+                <span class="ctrl-value" id="val-card-bg">#ffffff</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: TYPOGRAPHY -->
+      <div class="tab-content" data-tab="typography" style="display:none">
+        <div class="section-group">
+          <div class="section-header" onclick="toggleSection(this)">
+            <span>✏️ ขนาดตัวอักษร</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="ctrl-row" data-name="--display-size">
+              <span class="ctrl-label">Display (H1 Hero)</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="range" min="24" max="80" value="64" id="range-display"
+                  oninput="setFontSize('--display-size',this.value+'px','val-display')" />
+                <span class="ctrl-value" id="val-display">64px</span>
+              </div>
+            </div>
+            <div class="ctrl-row" data-name="--section-title-size">
+              <span class="ctrl-label">Section Title (H2)</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="range" min="18" max="56" value="34" id="range-section"
+                  oninput="setFontSize('--section-title-size',this.value+'px','val-section-title')" />
+                <span class="ctrl-value" id="val-section-title">34px</span>
+              </div>
+            </div>
+            <div class="ctrl-row" data-name="--card-title-size">
+              <span class="ctrl-label">Card Title (H3)</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="range" min="12" max="32" value="19" id="range-card"
+                  oninput="setFontSize('--card-title-size',this.value+'px','val-card-title')" />
+                <span class="ctrl-value" id="val-card-title">19px</span>
+              </div>
+            </div>
+            <div class="ctrl-row" data-name="--body-size">
+              <span class="ctrl-label">Body Text</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="range" min="12" max="22" value="15" id="range-body"
+                  oninput="setFontSize('--body-size',this.value+'px','val-body-size')" />
+                <span class="ctrl-value" id="val-body-size">15px</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-group">
+          <div class="section-header" onclick="toggleSection(this)">
+            <span>🔤 Font Family</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="ctrl-row" data-name="--font-family">
+              <span class="ctrl-label">Font</span>
+              <select class="ctrl-select" onchange="setFontFamily(this.value)">
+                <option value='"IBM Plex Sans Thai","Noto Sans Thai","Prompt","Sarabun",Arial,sans-serif'>IBM Plex Sans Thai (Default)</option>
+                <option value='"Prompt","Sarabun",Arial,sans-serif'>Prompt</option>
+                <option value='"Sarabun",Arial,sans-serif'>Sarabun</option>
+                <option value='"Noto Sans Thai",Arial,sans-serif'>Noto Sans Thai</option>
+                <option value='Georgia,serif'>Georgia (Serif)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: LAYOUT -->
+      <div class="tab-content" data-tab="layout" style="display:none">
+        <div class="section-group">
+          <div class="section-header" onclick="toggleSection(this)">
+            <span>📐 Spacing & Radius</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="ctrl-row" data-name="--card-radius">
+              <span class="ctrl-label">Card Border Radius</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="range" min="0" max="48" value="24" id="range-radius"
+                  oninput="setVar('--card-radius',this.value+'px','','val-radius'); document.getElementById('val-radius').textContent=this.value+'px'" />
+                <span class="ctrl-value" id="val-radius">24px</span>
+              </div>
+            </div>
+            <div class="ctrl-row" data-name="--button-radius">
+              <span class="ctrl-label">Button Radius</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="range" min="0" max="99" value="99" id="range-btn-radius"
+                  oninput="setVar('--button-radius',this.value+'px','','val-btn-radius'); document.getElementById('val-btn-radius').textContent=this.value+'px'" />
+                <span class="ctrl-value" id="val-btn-radius">99px</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-group">
+          <div class="section-header" onclick="toggleSection(this)">
+            <span>💫 Shadows</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="ctrl-row" data-name="shadow-intensity">
+              <span class="ctrl-label">Shadow Intensity</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="range" min="0" max="30" value="8" id="range-shadow"
+                  oninput="setShadow(this.value)" />
+                <span class="ctrl-value" id="val-shadow">8%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: COMPONENTS -->
+      <div class="tab-content" data-tab="components" style="display:none">
+        <div class="section-group">
+          <div class="section-header" onclick="toggleSection(this)">
+            <span>🔘 Buttons</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="ctrl-row">
+              <span class="ctrl-label">Primary Button Style</span>
+              <select class="ctrl-select" onchange="setBtnStyle(this.value)">
+                <option value="gradient">Gradient (Default)</option>
+                <option value="solid">Solid Color</option>
+                <option value="outline">Outline</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-group">
+          <div class="section-header" onclick="toggleSection(this)">
+            <span>📍 Header Style</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="ctrl-row">
+              <span class="ctrl-label">Header Height</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="range" min="50" max="120" value="72" id="range-header-h"
+                  oninput="setHeaderHeight(this.value)" />
+                <span class="ctrl-value" id="val-header-h">72px</span>
+              </div>
+            </div>
+            <div class="ctrl-row">
+              <span class="ctrl-label">Blur Intensity</span>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="range" min="0" max="40" value="20" id="range-blur"
+                  oninput="setHeaderBlur(this.value)" />
+                <span class="ctrl-value" id="val-blur">20px</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-group">
+          <div class="section-header" onclick="toggleSection(this)">
+            <span>📦 Presets</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="section-body">
+            <div style="display:grid;gap:8px;margin-top:4px;">
+              <button style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid #2d3748;background:#1a1f2e;color:#e2e8f0;font-size:12px;font-weight:600;cursor:pointer;text-align:left;transition:all 0.15s;" onclick="applyPreset('luxury')" onmouseover="this.style.background='#2d3748'" onmouseout="this.style.background='#1a1f2e'">
+                ✨ Luxury Gold — พรีเมียมกว่าเดิม
+              </button>
+              <button style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid #2d3748;background:#1a1f2e;color:#e2e8f0;font-size:12px;font-weight:600;cursor:pointer;text-align:left;transition:all 0.15s;" onclick="applyPreset('modern')" onmouseover="this.style.background='#2d3748'" onmouseout="this.style.background='#1a1f2e'">
+                🚀 Modern Dark — เทรนดี้ มืด
+              </button>
+              <button style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid #2d3748;background:#1a1f2e;color:#e2e8f0;font-size:12px;font-weight:600;cursor:pointer;text-align:left;transition:all 0.15s;" onclick="applyPreset('minimal')" onmouseover="this.style.background='#2d3748'" onmouseout="this.style.background='#1a1f2e'">
+                ⚪ Minimal Clean — เรียบ สะอาด
+              </button>
+              <button style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid #2d3748;background:#1a1f2e;color:#e2e8f0;font-size:12px;font-weight:600;cursor:pointer;text-align:left;transition:all 0.15s;" onclick="applyPreset('warm')" onmouseover="this.style.background='#2d3748'" onmouseout="this.style.background='#1a1f2e'">
+                🌅 Warm Earth — โทนอุ่น
+              </button>
+              <button style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid #2d3748;background:#1a1f2e;color:#e2e8f0;font-size:12px;font-weight:600;cursor:pointer;text-align:left;transition:all 0.15s;" onclick="applyPreset('default')" onmouseover="this.style.background='#2d3748'" onmouseout="this.style.background='#1a1f2e'">
+                ↺ Default Original — คืนค่าเดิม
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /sidebar-scroll -->
+  </div><!-- /sidebar -->
+
+  <!-- PREVIEW -->
+  <div class="preview-wrap">
+    <div class="preview-bar">
+      <div class="preview-bar-url">
+        <span>🌐</span>
+        <span>localhost:3000</span>
+        <span style="color:#4a5568;font-size:10px;margin-left:4px;">(preview)</span>
+      </div>
+      <div class="preview-viewport-btns">
+        <button class="vp-btn active" onclick="setViewport('desktop',this)">🖥 Desktop</button>
+        <button class="vp-btn" onclick="setViewport('tablet',this)">📱 Tablet</button>
+        <button class="vp-btn" onclick="setViewport('mobile',this)">📱 Mobile</button>
+      </div>
+    </div>
+
+    <div class="preview-canvas" id="previewCanvas">
+      <div class="site-frame" id="siteFrame">
+
+        <!-- TOP BAR -->
+        <div class="preview-topbar">
+          <div class="checks">
+            <div class="check">✓ เชี่ยวชาญจีนโดยทีมงานคนไทย</div>
+            <div class="check">✓ ทัวร์คุณภาพ ได้มาตรฐาน</div>
+            <div class="check">✓ เดินทางจริง รีวิวจริง</div>
+          </div>
+          <div>TH</div>
+        </div>
+
+        <!-- HEADER -->
+        <div class="preview-header" id="previewHeader">
+          <div>
+            <div class="preview-logo-text" id="previewLogoText">CHINA PRIME</div>
+            <div class="preview-logo-sub">Curated China Journeys</div>
+          </div>
+          <nav class="preview-nav" id="previewNav">
+            <a href="#">หน้าแรก</a>
+            <a href="#">ไพรเวททัวร์</a>
+            <a href="#">จอยทัวร์</a>
+            <a href="#">รถ/ไกด์/ล่าม</a>
+            <a href="#">รีวิว</a>
+            <a href="#">ติดต่อ</a>
+          </nav>
+          <div class="preview-header-actions">
+            <button class="preview-btn-success" id="btnLine">LINE</button>
+            <button class="preview-btn-primary" id="btnQuote">ขอใบเสนอราคา</button>
+          </div>
+        </div>
+
+        <!-- HERO -->
+        <div class="preview-hero" id="previewHero">
+          <div class="preview-hero-badge">Luxury China Travel</div>
+          <h1 id="previewHeroH1">ทัวร์จีนครบในที่เดียว<br/>ทั้งไพรเวท จอยทัวร์ และบริการเสริม</h1>
+          <p class="preview-hero-sub">เลือกได้ทั้งทริปส่วนตัว จอยทัวร์ และรถพร้อมคนขับ ไกด์ หรือล่าม สำหรับเที่ยวพักผ่อนหรือเดินทางธุรกิจในจีน</p>
+          <div class="preview-hero-chips">
+            <div class="preview-hero-chip"><div class="preview-hero-chip-icon">✓</div> คัดสรรเส้นทางคุณภาพ</div>
+            <div class="preview-hero-chip"><div class="preview-hero-chip-icon">✓</div> ไกด์ท้องถิ่นมืออาชีพ</div>
+            <div class="preview-hero-chip"><div class="preview-hero-chip-icon">✓</div> บริการดูแล 24 ชม.</div>
+          </div>
+          <div class="preview-hero-btns">
+            <button class="hero-btn-white">ขอคำแนะนำทริป</button>
+            <button class="hero-btn-glass">ดูโปรแกรมยอดนิยม</button>
+          </div>
+          <div class="preview-hero-pills">
+            <span class="preview-hero-pill">ไพรเวททัวร์</span>
+            <span class="preview-hero-pill">จอยทัวร์</span>
+            <span class="preview-hero-pill">รถ / ไกด์ / ล่าม</span>
+          </div>
+          <div class="preview-hero-stats">
+            <div class="preview-hero-stat">
+              <div class="preview-hero-stat-val">3 รูปแบบบริการ</div>
+              <div class="preview-hero-stat-lbl">ไพรเวททัวร์ จอยทัวร์ และรถ/ไกด์/ล่าม</div>
+            </div>
+            <div class="preview-hero-stat">
+              <div class="preview-hero-stat-val">ทีมงานไทยดูแล</div>
+              <div class="preview-hero-stat-lbl">ช่วยคัดเส้นทางและประสานงานก่อนเดินทาง</div>
+            </div>
+            <div class="preview-hero-stat">
+              <div class="preview-hero-stat-val">ตอบไว ใช้งานจริง</div>
+              <div class="preview-hero-stat-lbl">คุยต่อได้ทั้งโทร LINE และขอใบเสนอราคา</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRUST BAR -->
+        <div class="preview-section" style="padding:20px 24px;">
+          <div class="preview-trust" id="previewTrust">
+            <div class="preview-trust-item">
+              <div class="preview-trust-icon" id="trustIcon1">🛡</div>
+              <div><div class="preview-trust-title">ทีมงานมืออาชีพ</div><div class="preview-trust-text">ประสบการณ์มากกว่า 10 ปี</div></div>
+            </div>
+            <div class="preview-trust-item">
+              <div class="preview-trust-icon">🗺</div>
+              <div><div class="preview-trust-title">เที่ยวสนุกเส้นทางจีน</div><div class="preview-trust-text">เราคัดจริงทุกเส้นทาง</div></div>
+            </div>
+            <div class="preview-trust-item">
+              <div class="preview-trust-icon">🔒</div>
+              <div><div class="preview-trust-title">ปลอดภัย อุ่นใจ</div><div class="preview-trust-text">มาตรฐานงานทัวร์มืออาชีพ</div></div>
+            </div>
+            <div class="preview-trust-item">
+              <div class="preview-trust-icon">⏰</div>
+              <div><div class="preview-trust-title">ดูแล 24 ชั่วโมง</div><div class="preview-trust-text">พร้อมช่วยเหลือตลอดการเดินทาง</div></div>
+            </div>
+            <div class="preview-trust-item">
+              <div class="preview-trust-icon">💰</div>
+              <div><div class="preview-trust-title">ราคาโปร่งใส</div><div class="preview-trust-text">ไม่มีค่าใช้จ่ายแอบแฝง</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- POPULAR TOURS -->
+        <div class="preview-section">
+          <div class="preview-section-title" id="previewSectionTitle">ทัวร์ยอดนิยม</div>
+          <div class="preview-section-sub">รวมโปรแกรมที่ลูกค้าสนใจบ่อย มีทั้งเส้นทางคลาสสิก โปรแกรมคุ้มค่า และรอบเดินทางที่พร้อมขายจริง</div>
+          <div class="preview-cards-grid">
+            <div class="preview-card">
+              <div class="preview-card-img">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/20090107_great_wall_8212.jpg/640px-20090107_great_wall_8212.jpg" alt="" onerror="this.style.display='none'"/>
+                กำแพงเมืองจีน
+              </div>
+              <div class="preview-card-body">
+                <div class="preview-card-tag">CLASSIC</div>
+                <div class="preview-card-title" id="cardTitle1">ปักกิ่ง 5 วัน 4 คืน</div>
+                <div class="preview-card-desc">กำแพงเมืองจีน พระราชวังต้องห้าม จัตุรัสเทียนอันเหมิน</div>
+                <div style="font-size:11px;color:#64748b;background:#f7fafe;border-radius:12px;padding:8px;margin-bottom:8px;">
+                  <div>🗓 5 วัน 4 คืน • เดินทาง 2 ท่านขึ้นไป</div>
+                  <div>🏨 โรงแรม 4 ดาว • ✈ ออกทุกเดือน</div>
+                </div>
+                <div class="preview-card-price" id="cardPrice1">฿ 18,900</div>
+                <button class="preview-card-cta" id="cardCta1">สอบถาม / จองเดี๋ยวนี้</button>
+              </div>
+            </div>
+            <div class="preview-card">
+              <div class="preview-card-img" style="background: linear-gradient(135deg, #1d8f63 0%, #0f4c81 100%);">เซี่ยงไฮ้</div>
+              <div class="preview-card-body">
+                <div class="preview-card-tag">HOT</div>
+                <div class="preview-card-title">เซี่ยงไฮ้-หางโจว 4 วัน 3 คืน</div>
+                <div class="preview-card-desc">Bund ถนนนานกิง ทะเลสาบซีหู เมืองโบราณอูเจิ้น</div>
+                <div style="font-size:11px;color:#64748b;background:#f7fafe;border-radius:12px;padding:8px;margin-bottom:8px;">
+                  <div>🗓 4 วัน 3 คืน • เดินทาง 2 ท่านขึ้นไป</div>
+                  <div>🏨 โรงแรม 4 ดาว • ✈ ออกทุกสัปดาห์</div>
+                </div>
+                <div class="preview-card-price">฿ 15,900</div>
+                <button class="preview-card-cta">สอบถาม / จองเดี๋ยวนี้</button>
+              </div>
+            </div>
+            <div class="preview-card">
+              <div class="preview-card-img" style="background: linear-gradient(135deg, #c3a16c 0%, #103b63 100%);">จางเจียเจี้ย</div>
+              <div class="preview-card-body">
+                <div class="preview-card-tag">NATURE</div>
+                <div class="preview-card-title">จางเจียเจี้ย 6 วัน 5 คืน</div>
+                <div class="preview-card-desc">อุทยานฯ ภูเขาแก้ว สะพานแก้ว หุบเขาอวตาร</div>
+                <div style="font-size:11px;color:#64748b;background:#f7fafe;border-radius:12px;padding:8px;margin-bottom:8px;">
+                  <div>🗓 6 วัน 5 คืน • เดินทาง 4 ท่านขึ้นไป</div>
+                  <div>🏨 โรงแรม 4 ดาว • ✈ ออกทุกเดือน</div>
+                </div>
+                <div class="preview-card-price">฿ 22,500</div>
+                <button class="preview-card-cta">สอบถาม / จองเดี๋ยวนี้</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- REVIEWS -->
+        <div class="preview-section">
+          <div class="preview-section-title">รีวิวจากลูกค้า</div>
+          <div class="preview-section-sub" style="margin-bottom:20px;">ความประทับใจจากลูกค้าที่เดินทางกับเราจริง</div>
+          <div class="preview-reviews-grid">
+            <div class="preview-review-card">
+              <div class="preview-review-header">
+                <div class="preview-review-avatar" id="reviewAvatar1">ว</div>
+                <div>
+                  <div class="preview-review-name">คุณวันพร</div>
+                  <div class="preview-review-route">ปักกิ่ง 5 วัน 4 คืน</div>
+                </div>
+              </div>
+              <div class="preview-review-stars">★★★★★</div>
+              <div class="preview-review-text">"ทริปปักกิ่งดีมาก ไกด์ดูแลดี อาหารอร่อย โรงแรมเดินทางสะดวก ประทับใจทุกจุด"</div>
+            </div>
+            <div class="preview-review-card">
+              <div class="preview-review-header">
+                <div class="preview-review-avatar">ก</div>
+                <div>
+                  <div class="preview-review-name">คุณกิตติพงษ์</div>
+                  <div class="preview-review-route">จางเจียเจี้ย 6 วัน 5 คืน</div>
+                </div>
+              </div>
+              <div class="preview-review-stars">★★★★★</div>
+              <div class="preview-review-text">"วิวสวยอลังการมาก โปรแกรมไม่เร่งรีบ ไกด์อธิบายดี ประทับใจครับ"</div>
+            </div>
+            <div class="preview-review-card">
+              <div class="preview-review-header">
+                <div class="preview-review-avatar">ส</div>
+                <div>
+                  <div class="preview-review-name">คุณสุภาภรณ์</div>
+                  <div class="preview-review-route">เซี่ยงไฮ้-หางโจว 4 วัน 3 คืน</div>
+                </div>
+              </div>
+              <div class="preview-review-stars">★★★★★</div>
+              <div class="preview-review-text">"การเดินทางสะดวกสบาย รถดี โรงแรมดี บริการประทับใจมากค่ะ"</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="preview-footer" id="previewFooter">
+          <div class="preview-footer-grid">
+            <div>
+              <div class="preview-footer-logo">CHINA PRIME</div>
+              <div class="preview-footer-sub">Curated China Journeys</div>
+              <div class="preview-footer-desc">เราเชี่ยวชาญทัวร์จีนคุณภาพ บริการจัดทริปส่วนตัวและจอยทัวร์จีนโดยทีมงานคนไทย</div>
+            </div>
+            <div>
+              <div class="preview-footer-col-title">เมนูหลัก</div>
+              <a class="preview-footer-link" href="#">หน้าแรก</a>
+              <a class="preview-footer-link" href="#">ไพรเวททัวร์</a>
+              <a class="preview-footer-link" href="#">จอยทัวร์</a>
+              <a class="preview-footer-link" href="#">รีวิวลูกค้า</a>
+            </div>
+            <div>
+              <div class="preview-footer-col-title">เส้นทางยอดนิยม</div>
+              <a class="preview-footer-link" href="#">ปักกิ่ง</a>
+              <a class="preview-footer-link" href="#">เซี่ยงไฮ้</a>
+              <a class="preview-footer-link" href="#">เฉิงตู</a>
+              <a class="preview-footer-link" href="#">จางเจียเจี้ย</a>
+            </div>
+            <div>
+              <div class="preview-footer-col-title">ติดต่อเรา</div>
+              <a class="preview-footer-link" href="#">080-XXX-XXXX</a>
+              <a class="preview-footer-link" href="#">info@chinaprime.co.th</a>
+              <a class="preview-footer-link" href="#">LINE: @chinaprime</a>
+            </div>
+          </div>
+          <div class="preview-footer-copyright">© 2025 China Prime Co., Ltd. All Rights Reserved.</div>
+        </div>
+
+      </div><!-- /site-frame -->
+    </div><!-- /preview-canvas -->
+
+    <!-- CODE PANEL -->
+    <div class="code-panel" id="codePanel">
+      <div class="code-panel-header">
+        <span class="code-panel-title">📋 CSS VARIABLES — COPY TO globals.css</span>
+        <button class="code-panel-close" onclick="hideCode()">✕</button>
+      </div>
+      <div class="code-panel-body">
+        <pre id="codeOutput">/* กด "ดูโค้ด CSS" เพื่อแสดงผลลัพธ์ */</pre>
+      </div>
+    </div>
+
+  </div><!-- /preview-wrap -->
+</div><!-- /main -->
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+const DEFAULTS = {
+  '--bg': '#f4efe7',
+  '--primary-blue': '#184f84',
+  '--primary-blue-strong': '#0f4c81',
+  '--deep-blue': '#081a2f',
+  '--success': '#1d8f63',
+  '--gold': '#c3a16c',
+  '--card-radius': '24px',
+  '--button-radius': '99px',
+  '--display-size': '64px',
+  '--section-title-size': '34px',
+  '--card-title-size': '19px',
+  '--body-size': '15px',
+  '--header-bg': 'rgba(250,247,242,0.88)',
+  '--nav-text': '#334155',
+};
+
+let changes = {};
+
+// ===== HELPERS =====
+function setVar(varName, value, swatchId, valId) {
+  const frame = document.querySelector('.site-frame');
+  frame.style.setProperty(varName, value);
+  if (swatchId) document.getElementById(swatchId).style.background = value;
+  if (valId) document.getElementById(valId).textContent = value;
+  changes[varName] = value;
+  markChanged(varName);
+}
+
+function markChanged(varName) {
+  const rows = document.querySelectorAll('.ctrl-row');
+  rows.forEach(row => {
+    if (row.dataset.name === varName) {
+      if (changes[varName] && changes[varName] !== DEFAULTS[varName]) {
+        row.classList.add('changed');
+      } else {
+        row.classList.remove('changed');
+      }
+    }
+  });
+}
+
+function setHeaderBg(val) {
+  const opacity = parseFloat(val) / 255;
+  document.getElementById('previewHeader').style.background = val;
+  document.getElementById('swatch-hbg').style.background = val;
+  document.getElementById('val-hbg').textContent = val;
+  changes['--header-bg'] = val;
+}
+
+function setHeroOverlay(opacity) {
+  const hero = document.getElementById('previewHero');
+  const r = Math.round(8 + (1-opacity)*200);
+  const g = Math.round(26 + (1-opacity)*200);
+  const b = Math.round(47 + (1-opacity)*200);
+  hero.style.background = `linear-gradient(90deg, rgba(${r},${g},${b},${opacity}), rgba(16,59,99,${opacity*0.65}) 60%, rgba(16,59,99,${opacity*0.2}) 100%), url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/20090107_great_wall_8212.jpg/1200px-20090107_great_wall_8212.jpg') center/cover`;
+  changes['hero-overlay-opacity'] = opacity;
+}
+
+function setCardBg(val, swatchId, valId) {
+  const frame = document.querySelector('.site-frame');
+  frame.style.setProperty('--card-bg', val);
+  document.getElementById(swatchId).style.background = val;
+  document.getElementById(valId).textContent = val;
+  changes['--card-bg'] = val;
+}
+
+function setFontSize(varName, value, valId) {
+  const frame = document.querySelector('.site-frame');
+  frame.style.setProperty(varName, value);
+  document.getElementById(valId).textContent = value;
+  changes[varName] = value;
+  markChanged(varName);
+}
+
+function setFontFamily(val) {
+  const frame = document.querySelector('.site-frame');
+  frame.style.setProperty('--font-family', val);
+  frame.style.fontFamily = val;
+  changes['--font-family'] = val;
+}
+
+function setShadow(val) {
+  const frame = document.querySelector('.site-frame');
+  const pct = parseInt(val) / 100;
+  const shadow = `0 20px 45px rgba(12,25,43,${pct})`;
+  frame.style.setProperty('--shadow-card', shadow);
+  document.getElementById('val-shadow').textContent = val + '%';
+  changes['--shadow-card'] = shadow;
+}
+
+function setHeaderHeight(val) {
+  document.getElementById('previewHeader').style.height = val + 'px';
+  document.getElementById('val-header-h').textContent = val + 'px';
+  changes['header-height'] = val + 'px';
+}
+
+function setHeaderBlur(val) {
+  document.getElementById('previewHeader').style.backdropFilter = `blur(${val}px)`;
+  document.getElementById('val-blur').textContent = val + 'px';
+  changes['header-blur'] = val + 'px';
+}
+
+function setBtnStyle(style) {
+  const frame = document.querySelector('.site-frame');
+  const btns = frame.querySelectorAll('.preview-btn-primary, .preview-card-cta, .hero-btn-white');
+  btns.forEach(btn => {
+    if (style === 'gradient') {
+      btn.style.background = `linear-gradient(135deg, #103b63 0%, var(--primary-blue-strong) 55%, #2f6995 100%)`;
+    } else if (style === 'solid') {
+      btn.style.background = `var(--primary-blue-strong)`;
+    } else if (style === 'outline') {
+      btn.style.background = 'transparent';
+      btn.style.border = '2px solid var(--primary-blue-strong)';
+      btn.style.color = 'var(--primary-blue-strong)';
+    }
+  });
+  changes['btn-style'] = style;
+}
+
+// ===== PRESETS =====
+function applyPreset(name) {
+  const presets = {
+    luxury: {
+      '--bg': '#faf3e8',
+      '--primary-blue': '#8B6914',
+      '--primary-blue-strong': '#6B5210',
+      '--deep-blue': '#1a1208',
+      '--success': '#8B6914',
+      '--gold': '#d4a843',
+      '--card-radius': '20px',
+      '--button-radius': '8px',
+    },
+    modern: {
+      '--bg': '#0a0e1a',
+      '--primary-blue': '#4f9ef5',
+      '--primary-blue-strong': '#3b8ee8',
+      '--deep-blue': '#020408',
+      '--success': '#22d6a0',
+      '--gold': '#f0c060',
+      '--card-radius': '16px',
+      '--button-radius': '8px',
+    },
+    minimal: {
+      '--bg': '#ffffff',
+      '--primary-blue': '#1a1a1a',
+      '--primary-blue-strong': '#333333',
+      '--deep-blue': '#0d0d0d',
+      '--success': '#2d6a4f',
+      '--gold': '#888888',
+      '--card-radius': '8px',
+      '--button-radius': '4px',
+    },
+    warm: {
+      '--bg': '#fdf0e0',
+      '--primary-blue': '#c05621',
+      '--primary-blue-strong': '#9c4414',
+      '--deep-blue': '#2d1507',
+      '--success': '#276749',
+      '--gold': '#d4890a',
+      '--card-radius': '20px',
+      '--button-radius': '12px',
+    },
+    default: { ...DEFAULTS },
+  };
+
+  const preset = presets[name];
+  if (!preset) return;
+
+  const frame = document.querySelector('.site-frame');
+  Object.entries(preset).forEach(([k, v]) => {
+    frame.style.setProperty(k, v);
+    changes[k] = v;
+  });
+
+  // Update swatches + labels
+  const map = {
+    '--bg': ['swatch-bg','val-bg'],
+    '--primary-blue': ['swatch-primary-blue','val-primary-blue'],
+    '--primary-blue-strong': ['swatch-pbs','val-pbs'],
+    '--deep-blue': ['swatch-deep','val-deep'],
+    '--success': ['swatch-success','val-success'],
+    '--gold': ['swatch-gold','val-gold'],
+  };
+  Object.entries(map).forEach(([varName,[swatchId,valId]]) => {
+    if (preset[varName]) {
+      document.getElementById(swatchId).style.background = preset[varName];
+      document.getElementById(valId).textContent = preset[varName];
+    }
+  });
+
+  if (name === 'default') {
+    changes = {};
+    document.querySelectorAll('.ctrl-row').forEach(r => r.classList.remove('changed'));
+  }
+
+  showToast(`✅ ใช้ Preset: ${name}`);
+}
+
+// ===== TABS =====
+function setTab(tab) {
+  document.querySelectorAll('.toolbar-tab').forEach((btn, i) => {
+    const tabs = ['design','typography','layout','components'];
+    btn.classList.toggle('active', tabs[i] === tab);
+  });
+  document.querySelectorAll('.tab-content').forEach(el => {
+    el.style.display = el.dataset.tab === tab ? '' : 'none';
+  });
+}
+
+// ===== SECTIONS =====
+function toggleSection(header) {
+  header.classList.toggle('collapsed');
+  header.nextElementSibling.classList.toggle('collapsed');
+}
+
+// ===== VIEWPORT =====
+function setViewport(vp, btn) {
+  document.querySelectorAll('.vp-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const frame = document.getElementById('siteFrame');
+  frame.classList.remove('tablet','mobile');
+  if (vp !== 'desktop') frame.classList.add(vp);
+
+  if (vp === 'mobile') {
+    document.querySelector('.preview-cards-grid').style.gridTemplateColumns = '1fr';
+    document.querySelector('.preview-reviews-grid').style.gridTemplateColumns = '1fr';
+    document.querySelector('.preview-hero-stats').style.gridTemplateColumns = '1fr';
+    document.querySelector('.preview-trust').style.gridTemplateColumns = 'repeat(2,1fr)';
+    document.querySelector('.preview-footer-grid').style.gridTemplateColumns = '1fr';
+    document.querySelector('.preview-nav').style.display = 'none';
+    document.querySelector('.preview-header-actions').style.display = 'none';
+  } else if (vp === 'tablet') {
+    document.querySelector('.preview-cards-grid').style.gridTemplateColumns = 'repeat(2,1fr)';
+    document.querySelector('.preview-reviews-grid').style.gridTemplateColumns = 'repeat(2,1fr)';
+    document.querySelector('.preview-hero-stats').style.gridTemplateColumns = 'repeat(2,1fr)';
+    document.querySelector('.preview-trust').style.gridTemplateColumns = 'repeat(3,1fr)';
+    document.querySelector('.preview-footer-grid').style.gridTemplateColumns = 'repeat(2,1fr)';
+    document.querySelector('.preview-nav').style.display = 'none';
+    document.querySelector('.preview-header-actions').style.display = 'flex';
+  } else {
+    document.querySelector('.preview-cards-grid').style.gridTemplateColumns = 'repeat(3,1fr)';
+    document.querySelector('.preview-reviews-grid').style.gridTemplateColumns = 'repeat(3,1fr)';
+    document.querySelector('.preview-hero-stats').style.gridTemplateColumns = 'repeat(3,1fr)';
+    document.querySelector('.preview-trust').style.gridTemplateColumns = 'repeat(5,1fr)';
+    document.querySelector('.preview-footer-grid').style.gridTemplateColumns = '1.2fr 0.8fr 0.8fr 1fr';
+    document.querySelector('.preview-nav').style.display = 'flex';
+    document.querySelector('.preview-header-actions').style.display = 'flex';
+  }
+}
+
+// ===== CODE OUTPUT =====
+function showCode() {
+  const panel = document.getElementById('codePanel');
+  panel.classList.add('open');
+  generateCode();
+}
+
+function hideCode() {
+  document.getElementById('codePanel').classList.remove('open');
+}
+
+function generateCode() {
+  const frame = document.querySelector('.site-frame');
+  const vars = [
+    ['--background', '--bg'],
+    ['--color-primary-blue', '--primary-blue'],
+    ['--color-primary-blue-strong', '--primary-blue-strong'],
+    ['--color-deep-blue', '--deep-blue'],
+    ['--color-success', '--success'],
+    ['--color-luxe-gold', '--gold'],
+    ['--font-size-display', '--display-size'],
+    ['--font-size-section-title', '--section-title-size'],
+    ['--font-size-card-title', '--card-title-size'],
+    ['--font-size-body', '--body-size'],
+  ];
+
+  let cssVarLines = '';
+  vars.forEach(([cssName, jsVar]) => {
+    const currentVal = frame.style.getPropertyValue(jsVar) || DEFAULTS[jsVar];
+    if (currentVal) {
+      cssVarLines += `  <span class="pre-property">${cssName}</span><span class="pre-colon">:</span> <span class="pre-value">${currentVal}</span>;\n`;
+    }
+  });
+
+  const additionalCSS = [];
+  if (changes['--card-radius']) {
+    additionalCSS.push(`\n<span class="pre-comment">/* Card border radius */</span>\n.ui-card, .ui-radius-card { border-radius: <span class="pre-value">${changes['--card-radius']}</span>; }`);
+  }
+  if (changes['--button-radius']) {
+    additionalCSS.push(`\n<span class="pre-comment">/* Button border radius */</span>\n.ui-button-primary, .ui-button-success, .ui-button-secondary, .ui-button-glass { border-radius: <span class="pre-value">${changes['--button-radius']}</span>; }`);
+  }
+
+  document.getElementById('codeOutput').innerHTML =
+    `<span class="pre-comment">/* ===== แก้ไขค่าใน :root ใน globals.css ===== */</span>\n:root {\n${cssVarLines}}\n${additionalCSS.join('\n')}`;
+}
+
+// ===== RESET =====
+function resetAll() {
+  const frame = document.querySelector('.site-frame');
+  frame.removeAttribute('style');
+  changes = {};
+  document.querySelectorAll('.ctrl-row').forEach(r => r.classList.remove('changed'));
+
+  // Reset swatches
+  document.getElementById('swatch-bg').style.background = '#f4efe7';
+  document.getElementById('val-bg').textContent = '#f4efe7';
+  document.getElementById('swatch-primary-blue').style.background = '#184f84';
+  document.getElementById('val-primary-blue').textContent = '#184f84';
+  document.getElementById('swatch-pbs').style.background = '#0f4c81';
+  document.getElementById('val-pbs').textContent = '#0f4c81';
+  document.getElementById('swatch-deep').style.background = '#081a2f';
+  document.getElementById('val-deep').textContent = '#081a2f';
+  document.getElementById('swatch-success').style.background = '#1d8f63';
+  document.getElementById('val-success').textContent = '#1d8f63';
+  document.getElementById('swatch-gold').style.background = '#c3a16c';
+  document.getElementById('val-gold').textContent = '#c3a16c';
+
+  // Reset ranges
+  document.getElementById('range-display').value = 64;
+  document.getElementById('val-display').textContent = '64px';
+  document.getElementById('range-section').value = 34;
+  document.getElementById('val-section-title').textContent = '34px';
+  document.getElementById('range-card').value = 19;
+  document.getElementById('val-card-title').textContent = '19px';
+  document.getElementById('range-body').value = 15;
+  document.getElementById('val-body-size').textContent = '15px';
+  document.getElementById('range-radius').value = 24;
+  document.getElementById('val-radius').textContent = '24px';
+  document.getElementById('range-btn-radius').value = 99;
+  document.getElementById('val-btn-radius').textContent = '99px';
+  document.getElementById('range-shadow').value = 8;
+  document.getElementById('val-shadow').textContent = '8%';
+  document.getElementById('range-header-h').value = 72;
+  document.getElementById('val-header-h').textContent = '72px';
+  document.getElementById('range-blur').value = 20;
+  document.getElementById('val-blur').textContent = '20px';
+
+  showToast('↺ รีเซ็ตค่าทั้งหมดแล้ว');
+}
+
+// ===== APPLY TO FILES =====
+async function applyToFiles() {
+  generateCode();
+  const code = document.getElementById('codeOutput').textContent;
+  showCode();
+  showToast('📋 กด Copy แล้วนำไปวางใน globals.css → :root {}');
+
+  // Try clipboard
+  try {
+    const plainText = Object.entries(changes)
+      .filter(([k]) => k.startsWith('--'))
+      .map(([k,v]) => `  ${k}: ${v};`)
+      .join('\n');
+    if (plainText) {
+      await navigator.clipboard.writeText(`:root {\n${plainText}\n}`);
+      showToast('✅ คัดลอก CSS แล้ว! วางใน globals.css ได้เลย');
+    }
+  } catch(e) {}
+}
+
+// ===== SEARCH =====
+function filterControls(q) {
+  const query = q.toLowerCase().trim();
+  document.querySelectorAll('.ctrl-row').forEach(row => {
+    const label = row.querySelector('.ctrl-label')?.textContent.toLowerCase() || '';
+    const name = row.dataset.name || '';
+    const visible = !query || label.includes(query) || name.includes(query);
+    row.style.display = visible ? '' : 'none';
+  });
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  showToast('🎨 UI Editor พร้อมใช้งาน — ปรับ controls ทางซ้ายได้เลย!');
+});
+</script>
+</body>
+</html>

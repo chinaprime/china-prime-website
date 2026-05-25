@@ -1,4 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
+import { siteConfig } from "../site-config";
 
 const destinations = [
   {
@@ -69,83 +71,101 @@ const destinations = [
 
 export default function DestinationsPage() {
   return (
-    <main className="min-h-screen bg-[#f8f5ef] text-[#1f2933]">
-      <section className="relative overflow-hidden bg-[#071a33] px-6 py-24 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_10%,rgba(201,164,92,0.24),transparent_32%),linear-gradient(135deg,#071a33,#050f24)]" />
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#f8f5ef] to-transparent" />
+    <main className="min-h-screen bg-[#f4efe7] text-[#13283d]">
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <Image
+            src="/images/great-wall-home.jpg"
+            alt="จุดหมายปลายทางในจีน"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,26,47,0.94),rgba(16,59,99,0.76)_42%,rgba(16,59,99,0.24)_76%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(195,161,108,0.24),transparent_28%)]" />
+        </div>
 
-        <div className="relative mx-auto max-w-6xl">
-          <Link href="/" className="text-sm font-semibold text-amber-300 transition hover:text-amber-200">
-            ← กลับหน้าแรก
-          </Link>
-          <p className="mt-12 text-sm font-semibold uppercase tracking-[0.3em] text-amber-300">
-            Curated China Destinations
-          </p>
-          <h1 className="mt-5 max-w-4xl text-5xl font-bold leading-tight md:text-6xl">
-            จุดหมายปลายทางจีนสำหรับทริปส่วนตัวระดับพรีเมียม
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-200">
-            เลือกเมืองตามสไตล์การเดินทางของคุณ ไม่ว่าจะเป็นครอบครัว วัฒนธรรม ธรรมชาติ
-            เมืองทันสมัย หรือเส้นทางพิเศษที่ต้องการการออกแบบอย่างละเอียด
-          </p>
+        <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-10 text-white sm:px-6 lg:px-8 lg:pb-28 lg:pt-14">
+          <div className="max-w-4xl">
+            <Link href="/" className="inline-flex items-center gap-2 rounded-full border border-white/16 bg-white/10 px-4 py-2 text-sm font-semibold text-white/92 backdrop-blur-sm transition hover:bg-white/14">
+              <span>←</span>
+              กลับหน้าแรก
+            </Link>
+            <div className="mt-6 inline-flex rounded-full border border-white/14 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#f3ddbf] backdrop-blur-sm">
+              Curated China Destinations
+            </div>
+            <h1 className="ui-display mt-4 max-w-[12ch] sm:max-w-4xl">
+              จุดหมายปลายทางจีน
+              <br />
+              สำหรับทริปส่วนตัวระดับพรีเมียม
+            </h1>
+            <p className="mt-5 max-w-3xl text-[15px] leading-8 text-white/88 md:text-[1.08rem]">
+              เลือกเมืองตามสไตล์การเดินทางของคุณ ไม่ว่าจะเป็นครอบครัว วัฒนธรรม ธรรมชาติ เมืองทันสมัย หรือเส้นทางพิเศษที่ต้องการการออกแบบอย่างละเอียด
+            </p>
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
-        <div className="mb-10 max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-700">
-            Private Route Inspiration
-          </p>
-          <h2 className="mt-4 text-3xl font-bold text-[#071a33] md:text-4xl">
+      <section className="ui-section py-10 lg:py-12">
+        <div className="max-w-3xl">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#8f7348]">Private Route Inspiration</p>
+          <h2 className="mt-3 text-[2rem] font-bold tracking-[-0.05em] text-[#13283d] md:text-[2.6rem]">
             เมืองยอดนิยมที่สามารถออกแบบให้เหมาะกับคุณ
           </h2>
-          <p className="mt-4 leading-8 text-slate-600">
-            แต่ละเมืองมีจังหวะการเดินทางและเสน่ห์ต่างกัน ทีมงานจะช่วยเลือกเส้นทาง โรงแรม รถ และกิจกรรม
-            ให้เหมาะกับสมาชิกในทริปของคุณ
+          <p className="mt-4 text-sm leading-8 text-[#607086] md:text-base">
+            แต่ละเมืองมีจังหวะการเดินทางและเสน่ห์ต่างกัน ทีมงานจะช่วยเลือกเส้นทาง โรงแรม รถ และกิจกรรมให้เหมาะกับสมาชิกในทริปของคุณ
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {destinations.map((city) => (
-            <div
-              key={city.name}
-              className="group overflow-hidden rounded-[24px] border border-amber-900/10 bg-white shadow-[0_12px_30px_rgba(0,0,0,0.07)] transition duration-300 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-[0_18px_45px_rgba(0,0,0,0.12)]"
-            >
-              <div className="h-44 bg-[radial-gradient(circle_at_top,rgba(201,164,92,0.36),transparent_32%),linear-gradient(135deg,#071a33,#334155_48%,#c9a45c)] p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-100">
-                  {city.name}
-                </p>
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {destinations.map((city, index) => (
+            <article key={city.name} className="ui-card overflow-hidden">
+              <div className={`h-44 p-5 ${index % 3 === 0 ? "bg-[radial-gradient(circle_at_top,rgba(195,161,108,0.3),transparent_30%),linear-gradient(135deg,#081a2f,#214768_48%,#7bc3d4)]" : index % 3 === 1 ? "bg-[radial-gradient(circle_at_top,rgba(195,161,108,0.24),transparent_30%),linear-gradient(135deg,#081a2f,#184f84_48%,#c3a16c)]" : "bg-[radial-gradient(circle_at_top,rgba(123,195,212,0.25),transparent_30%),linear-gradient(135deg,#081a2f,#34536f_48%,#9aa8b8)]"}`}>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/80">{city.name}</p>
               </div>
 
               <div className="p-6">
-                <p className="text-sm font-semibold text-amber-700">{city.name}</p>
-                <h2 className="mt-2 text-2xl font-bold text-[#071a33]">{city.thaiName}</h2>
+                <p className="text-sm font-semibold text-[#8f7348]">{city.name}</p>
+                <h2 className="mt-2 text-[1.8rem] font-bold tracking-[-0.04em] text-[#13283d]">{city.thaiName}</h2>
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   {city.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full border border-amber-700/20 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800"
-                    >
+                    <span key={tag} className="rounded-full border border-[rgba(195,161,108,0.28)] bg-[#fbf6ed] px-3 py-1 text-xs font-semibold text-[#8f7348]">
                       {tag}
                     </span>
                   ))}
                 </div>
 
-                <p className="mt-5 text-sm leading-7 text-slate-600">{city.description}</p>
-                <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+                <p className="mt-5 text-sm leading-7 text-[#607086]">{city.description}</p>
+                <p className="mt-4 rounded-[20px] bg-[#f5efe5] p-4 text-sm leading-6 text-[#516275]">
                   {city.suitableFor}
                 </p>
 
-                <Link
-                  href="/contact"
-                  className="mt-6 inline-flex text-sm font-bold text-[#071a33] transition hover:text-amber-700"
-                >
+                <Link href="/contact" className="mt-6 inline-flex text-sm font-semibold text-[#103b63] transition hover:text-[#8f7348]">
                   ขอแพลนเมืองนี้ →
                 </Link>
               </div>
-            </div>
+            </article>
           ))}
+        </div>
+
+        <div className="ui-panel-accent mt-10 grid gap-4 p-6 sm:p-7 md:grid-cols-[1.05fr_0.95fr] md:items-center">
+          <div>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#f3ddbf]">Need Help Choosing?</p>
+            <h3 className="mt-3 text-[1.8rem] font-bold tracking-[-0.05em] md:text-[2.3rem]">ยังไม่แน่ใจว่าจะเริ่มเมืองไหนดี?</h3>
+            <p className="mt-3 text-sm leading-8 text-white/84 md:text-base">
+              บอกงบ จำนวนวัน และสไตล์ที่ชอบ แล้วทีมงานจะช่วยคัดเมืองและเส้นทางที่เหมาะที่สุดให้
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 md:items-end">
+            <Link href="/contact" className="ui-button ui-button-secondary inline-flex min-h-11 items-center justify-center px-5">
+              ขอคำแนะนำทริป
+            </Link>
+            <Link href={siteConfig.lineUrl} target="_blank" rel="noopener noreferrer" className="ui-button ui-button-glass inline-flex min-h-11 items-center justify-center px-5">
+              คุยทาง LINE
+            </Link>
+          </div>
         </div>
       </section>
     </main>
